@@ -2,15 +2,17 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 	"github.com/Prototype-1/freelanceX_user_service/pkg/jwt"
+	"github.com/Prototype-1/freelanceX_apigateway_service/pkg" 
 	"github.com/gin-gonic/gin"
 )
 
 type contextKey string
-const userIDKey contextKey = "userID"
 
+const userIDKey contextKey = "userID"
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -38,9 +40,15 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid session"})
 			return
 		}
-
-		ctx := context.WithValue(c.Request.Context(), userIDKey, claims.UserID)
-		c.Request = c.Request.WithContext(ctx)
+		ctx := context.Background()
+		key := fmt.Sprintf("session:%s", sessionID)
+		exists, err := pkg.RedisClient.Exists(ctx, key).Result()
+		if err != nil || exists == 0 {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Session not found or expired"})
+			return
+		}
+		c.Set("user_id", claims.UserID)
+		c.Set("session_id", sessionID)
 		c.Next()
 	}
 }
