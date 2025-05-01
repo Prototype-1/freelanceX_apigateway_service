@@ -5,14 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"github.com/Prototype-1/freelanceX_user_service/pkg/jwt"
-	"github.com/Prototype-1/freelanceX_apigateway_service/pkg" 
+	"github.com/Prototype-1/freelanceX_apigateway_service/pkg/jwt"
+	"github.com/Prototype-1/freelanceX_apigateway_service/pkg/redis" 
 	"github.com/gin-gonic/gin"
 )
-
-type contextKey string
-
-const userIDKey contextKey = "userID"
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {

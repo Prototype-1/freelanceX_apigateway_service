@@ -6,7 +6,7 @@ import (
 	"github.com/Prototype-1/freelanceX_apigateway_service/config"
 	"github.com/Prototype-1/freelanceX_apigateway_service/internal/client"
 	"github.com/Prototype-1/freelanceX_apigateway_service/internal/router"
-	redis "github.com/Prototype-1/freelanceX_apigateway_service/pkg"
+	redis "github.com/Prototype-1/freelanceX_apigateway_service/pkg/redis"
 )
 
 func main() {
