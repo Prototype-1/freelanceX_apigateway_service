@@ -120,6 +120,40 @@ func SelectRole(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Role selected successfully"})
 }
 
+func GetMe(c *gin.Context) {
+	userID := c.Request.Context().Value("userID")
+	if userID == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	sessionID := c.GetHeader("X-Session-ID")
+	if sessionID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing X-Session-ID header"})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+
+	res, err := client.AuthClient.GetMe(ctx, &authPb.SessionRequest{
+		SessionId: sessionID,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"user": gin.H{
+			"id":    res.Id,
+			"name":  res.Name,
+			"email": res.Email,
+			"role":  res.Role,
+		},
+	})
+}
+
 func Logout(c *gin.Context) {
 	sessionID := c.GetHeader("X-Session-ID")
 	if sessionID == "" {

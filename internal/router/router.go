@@ -17,6 +17,7 @@ func SetupRouter() *gin.Engine {
 			auth.POST("/login", handler.Login)
 			auth.POST("/oauth", handler.OAuth)
 			auth.POST("/select-role", middleware.AuthMiddleware(), handler.SelectRole)
+			auth.GET("/me", middleware.AuthMiddleware(), handler.GetMe)
 			auth.POST("/logout", middleware.AuthMiddleware(), handler.Logout)
 
 		}
