@@ -119,3 +119,24 @@ func SelectRole(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Role selected successfully"})
 }
+
+func Logout(c *gin.Context) {
+	sessionID := c.GetHeader("X-Session-ID")
+	if sessionID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing session ID"})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+
+	_, err := client.AuthClient.Logout(ctx, &authPb.LogoutRequest{
+		SessionId: sessionID,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out"})
+}
+
