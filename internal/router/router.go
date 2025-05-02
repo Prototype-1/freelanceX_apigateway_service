@@ -3,6 +3,7 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_user_service"
+	proposalhdlr "github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_proposal_service"
 	"github.com/Prototype-1/freelanceX_apigateway_service/middleware"
 )
 
@@ -42,6 +43,16 @@ review := api.Group("/review")
 	review.GET("/:freelancer_id", middleware.AuthMiddleware(), handler.GetFreelancerReviews)
 }
 
+proposal := r.Group("/proposal")
+{
+	proposal.POST("/proposal", middleware.AuthMiddleware(), proposalhdlr.CreateProposalHandler)
+	proposal.GET("/proposal/:id", middleware.AuthMiddleware(), proposalhdlr.GetProposalByIDHandler)
+	proposal.PUT("/proposal/:id", middleware.AuthMiddleware(), proposalhdlr.UpdateProposalHandler)
+	proposal.GET("/proposals", middleware.AuthMiddleware(), proposalhdlr.ListProposalsHandler)
+	proposal.POST("/template", middleware.AuthMiddleware(), proposalhdlr.SaveTemplateHandler)
+	proposal.GET("/templates/:freelancer_id", middleware.AuthMiddleware(), proposalhdlr.GetTemplatesHandler)
+	
+}
 
 	}
 
