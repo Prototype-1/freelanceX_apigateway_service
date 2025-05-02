@@ -21,6 +21,14 @@ func SetupRouter() *gin.Engine {
 			auth.POST("/logout", middleware.AuthMiddleware(), handler.Logout)
 
 		}
+
+		portfolio := r.Group("/portfolio")
+{
+	portfolio.POST("/", middleware.AuthMiddleware(), handler.CreatePortfolio)
+	portfolio.GET("/:freelancer_id", middleware.AuthMiddleware(), handler.GetPortfolio)
+	portfolio.DELETE("/:portfolio_id", middleware.AuthMiddleware(), handler.DeletePortfolio)
+}
+
 	}
 
 	return r
