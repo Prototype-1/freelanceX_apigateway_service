@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/Prototype-1/freelanceX_apigateway_service/internal/handler"
+	"github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_user_service"
 	"github.com/Prototype-1/freelanceX_apigateway_service/middleware"
 )
 
