@@ -6,7 +6,7 @@ import (
 	"time"
 	"github.com/gin-gonic/gin"
 	"github.com/Prototype-1/freelanceX_apigateway_service/internal/client"
-	authPb "github.com/Prototype-1/freelanceX_user_service/proto/auth"
+authPb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_user_service/auth"
 )
 
 func Register(c *gin.Context) {
