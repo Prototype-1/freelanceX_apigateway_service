@@ -32,6 +32,10 @@ func Register(c *gin.Context) {
 		Role:     req.Role,
 	})
 	if err != nil {
+		if err.Error() == "this email is already registered" {
+			c.JSON(http.StatusConflict, gin.H{"error": "This email is already registered"})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -62,7 +66,11 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": res.AccessToken})
+	c.JSON(http.StatusOK, gin.H{
+		"access_token": res.AccessToken,
+		"session_id":   res.SessionId,
+		"user_id":      res.UserId,
+	})
 }
 
 func OAuth(c *gin.Context) {
@@ -82,7 +90,7 @@ func OAuth(c *gin.Context) {
 	defer cancel()
 
 	res, err := client.AuthClient.OAuthLogin(ctx, &authPb.OAuthRequest{
-		Email:     req.Email,
+		Email:         req.Email,
 		OauthProvider: req.Provider,
 		OauthId:       req.OAuthId,
 	})
@@ -91,13 +99,31 @@ func OAuth(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": res.AccessToken})
+	if !res.IsRoleSelected {
+		c.JSON(http.StatusOK, gin.H{
+			"user_id":          res.UserId,
+			"is_role_selected": false,
+			"message":          "Role selection required",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":          res.Message,
+		"access_token":     res.AccessToken,
+		"session_id":       res.SessionId,
+		"user_id":          res.UserId,
+		"is_role_selected": res.IsRoleSelected,
+		"name":             res.Name,
+		"email":            res.Email,
+		"role":             res.Role,
+	})
 }
 
 func SelectRole(c *gin.Context) {
 	var req struct {
 		UserId string `json:"user_id" binding:"required"`
-		Role   string `json:"role" binding:"required"` 
+		Role   string `json:"role" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -108,7 +134,7 @@ func SelectRole(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
-	_, err := client.AuthClient.SelectRole(ctx, &authPb.SelectRoleRequest{
+	res, err := client.AuthClient.SelectRole(ctx, &authPb.SelectRoleRequest{
 		UserId: req.UserId,
 		Role:   req.Role,
 	})
@@ -117,16 +143,12 @@ func SelectRole(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Role selected successfully"})
+	c.JSON(http.StatusOK, gin.H{
+		"message": res.Message,
+	})
 }
 
 func GetMe(c *gin.Context) {
-	userID := c.Request.Context().Value("userID")
-	if userID == nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
-	}
-
 	sessionID := c.GetHeader("X-Session-ID")
 	if sessionID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing X-Session-ID header"})
@@ -146,10 +168,11 @@ func GetMe(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"user": gin.H{
-			"id":    res.Id,
-			"name":  res.Name,
-			"email": res.Email,
-			"role":  res.Role,
+			"id":              res.Id,
+			"name":            res.Name,
+			"email":           res.Email,
+			"role":            res.Role,
+			"is_role_selected": res.IsRoleSelected,
 		},
 	})
 }
