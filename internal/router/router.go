@@ -36,6 +36,11 @@ profile := r.Group("/profile")
 	profile.GET("/:user_id", middleware.AuthMiddleware(), handler.GetProfile)
 }
 
+review := api.Group("/review")
+{
+	review.POST("/", middleware.AuthMiddleware(), handler.SubmitReview)
+	review.GET("/:freelancer_id", middleware.AuthMiddleware(), handler.GetFreelancerReviews)
+}
 
 
 	}
