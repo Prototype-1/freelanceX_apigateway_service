@@ -29,6 +29,15 @@ func SetupRouter() *gin.Engine {
 	portfolio.DELETE("/:portfolio_id", middleware.AuthMiddleware(), handler.DeletePortfolio)
 }
 
+profile := r.Group("/profile")
+{
+	profile.POST("/", middleware.AuthMiddleware(), handler.CreateProfile)
+	profile.PUT("/", middleware.AuthMiddleware(), handler.UpdateProfile)
+	profile.GET("/:user_id", middleware.AuthMiddleware(), handler.GetProfile)
+}
+
+
+
 	}
 
 	return r
