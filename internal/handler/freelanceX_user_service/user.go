@@ -40,7 +40,10 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"token": res.AccessToken})
+	c.JSON(http.StatusCreated, gin.H{
+		"message": res.Message,
+		"user_id": res.UserId,
+	})
 }
 
 func Login(c *gin.Context) {
