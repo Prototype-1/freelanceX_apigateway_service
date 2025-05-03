@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/Prototype-1/freelanceX_apigateway_service/internal/client"
 authPb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_user_service/auth"
+"github.com/Prototype-1/freelanceX_apigateway_service/pkg/oauth"
 )
 
 func Register(c *gin.Context) {
@@ -78,10 +79,8 @@ func Login(c *gin.Context) {
 
 func OAuth(c *gin.Context) {
 	var req struct {
-		Email    string `json:"email" binding:"required,email"`
-		Name     string `json:"name" binding:"required"`
+		Code     string `json:"code" binding:"required"`
 		Provider string `json:"provider" binding:"required"`
-		OAuthId  string `json:"oauth_id" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -89,14 +88,20 @@ func OAuth(c *gin.Context) {
 		return
 	}
 
+	userProfile, err := oauth.ExchangeAuthorizationCodeForToken(req.Code)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	oAuthReq := &authPb.OAuthRequest{
+		OauthProvider: req.Provider,
+		Code:          req.Code, 
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
-	res, err := client.AuthClient.OAuthLogin(ctx, &authPb.OAuthRequest{
-		Email:         req.Email,
-		OauthProvider: req.Provider,
-		OauthId:       req.OAuthId,
-	})
+	res, err := client.AuthClient.OAuthLogin(ctx, oAuthReq)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -110,15 +115,14 @@ func OAuth(c *gin.Context) {
 		})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{
 		"message":          res.Message,
 		"access_token":     res.AccessToken,
 		"session_id":       res.SessionId,
 		"user_id":          res.UserId,
 		"is_role_selected": res.IsRoleSelected,
-		"name":             res.Name,
-		"email":            res.Email,
+		"name":             userProfile.Name,
+		"email":            userProfile.Email,
 		"role":             res.Role,
 	})
 }
