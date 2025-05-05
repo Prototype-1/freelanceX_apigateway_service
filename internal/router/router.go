@@ -4,10 +4,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_user_service"
 	proposalhdlr "github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_proposal_service"
+	projecthdlr "github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_project.crm_service"
 	"github.com/Prototype-1/freelanceX_apigateway_service/middleware"
 )
 
-func SetupRouter() *gin.Engine {
+func SetupRouter(
+	clientHandler *projecthdlr.ClientHandler,
+	projectHandler *projecthdlr.ProjectHandler,
+) *gin.Engine {
 	r := gin.Default()
 
 	api := r.Group("/api")
@@ -33,7 +37,7 @@ func SetupRouter() *gin.Engine {
 profile := r.Group("/profile")
 {
 	profile.POST("/", middleware.AuthMiddleware(), handler.CreateProfile)
-	profile.PUT("/", middleware.AuthMiddleware(), handler.UpdateProfile)
+	profile.PUT("/update", middleware.AuthMiddleware(), handler.UpdateProfile)
 	profile.GET("/:user_id", middleware.AuthMiddleware(), handler.GetProfile)
 }
 
@@ -54,7 +58,26 @@ proposal := r.Group("/proposal")
 	
 }
 
-	}
+client := api.Group("/clients")
+		{
+			client.POST("/", middleware.AuthMiddleware(), clientHandler.CreateClientHandler)
+			client.GET("/:id", middleware.AuthMiddleware(), clientHandler.GetClientHandler)
+			client.PUT("/:id", middleware.AuthMiddleware(), clientHandler.UpdateClientHandler)
+			client.DELETE("/:id", middleware.AuthMiddleware(), clientHandler.DeleteClientHandler)
+		}
 
+		// Project routes
+		project := api.Group("/projects")
+		{
+			project.POST("/", middleware.AuthMiddleware(), projectHandler.CreateProjectHandler)
+			project.GET("/user/:userId", middleware.AuthMiddleware(), projectHandler.GetProjectsByUserHandler)
+			project.GET("/:id", middleware.AuthMiddleware(), projectHandler.GetProjectByIdHandler)
+			project.GET("/discover/:userId", middleware.AuthMiddleware(), projectHandler.DiscoverProjectsHandler)
+			project.POST("/assign", middleware.AuthMiddleware(), projectHandler.AssignFreelancerHandler)
+			project.PUT("/:id", middleware.AuthMiddleware(), projectHandler.UpdateProjectHandler)
+			project.DELETE("/:id", middleware.AuthMiddleware(), projectHandler.DeleteProjectHandler)
+		}
+
+	}
 	return r
 }

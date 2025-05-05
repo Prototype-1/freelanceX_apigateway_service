@@ -10,6 +10,8 @@ import (
 	portfolioPb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_user_service/portfolio"
 	reviewPb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_user_service/review"
 	proposalPb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_proposal_service"
+	projectPb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_project.crm_service/project"
+	clientsPb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_project.crm_service/client"
 )
 
 var (
@@ -17,7 +19,11 @@ var (
 	ProfileClient   profilePb.ProfileServiceClient
 	PortfolioClient portfolioPb.PortfolioServiceClient
 	ReviewClient    reviewPb.ReviewServiceClient
+
 	ProposalClient proposalPb.ProposalServiceClient
+
+	ProjectClient projectPb.ProjectServiceClient
+	ClientClient  clientsPb.ClientServiceClient
 )
 
 	// --- USER SERVICE ---
@@ -39,19 +45,41 @@ func InitUserServiceClients() {
 	ReviewClient = reviewPb.NewReviewServiceClient(conn)
 
 	log.Println("Connected to User Service via gRPC at", userGrpcAddr)
+}
 
 	// --- PROPOSAL SERVICE ---
-	proposalGrpcAddr := os.Getenv("PROPOSAL_SERVICE_GRPC_ADDR")
-	if proposalGrpcAddr == "" {
-		proposalGrpcAddr = "localhost:50052"
+
+func InitProposalServiceCLient() {
+		proposalGrpcAddr := os.Getenv("PROPOSAL_SERVICE_GRPC_ADDR")
+		if proposalGrpcAddr == "" {
+			proposalGrpcAddr = "localhost:50052"
+		}
+	
+		proposalConn, err := grpc.NewClient(proposalGrpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		if err != nil {
+			log.Fatalf("Failed to connect to proposal service: %v", err)
+		}
+	
+		ProposalClient = proposalPb.NewProposalServiceClient(proposalConn)
+		log.Println("Connected to Proposal Service via gRPC at", proposalGrpcAddr)
+}
+
+// --- PROJECT.CRM SERVICE ---
+
+func InitCrmServiceClients() {
+	crmGrpcAddr := os.Getenv("CRM_SERVICE_GRPC_ADDR")
+	if crmGrpcAddr == "" {
+		crmGrpcAddr = "localhost:50053"
 	}
 
-	proposalConn, err := grpc.NewClient(proposalGrpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	clientConn, err := grpc.NewClient(crmGrpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		log.Fatalf("Failed to connect to proposal service: %v", err)
+		log.Fatalf("Failed to create CRM service gRPC client: %v", err)
 	}
 
-	ProposalClient = proposalPb.NewProposalServiceClient(proposalConn)
-	log.Println("Connected to Proposal Service via gRPC at", proposalGrpcAddr)
+	ProjectClient = projectPb.NewProjectServiceClient(clientConn)
+	ClientClient = clientsPb.NewClientServiceClient(clientConn)
+
+	log.Println("Connected to CRM Service via gRPC at", crmGrpcAddr)
 }
 
