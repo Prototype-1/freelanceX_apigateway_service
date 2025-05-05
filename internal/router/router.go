@@ -21,7 +21,7 @@ func SetupRouter(
 			auth.POST("/register", handler.Register)
 			auth.POST("/login", handler.Login)
 			auth.POST("/oauth", handler.OAuth)
-			auth.POST("/select-role", middleware.AuthMiddleware(), handler.SelectRole)
+			auth.POST("/select-role",  handler.SelectRole)
 			auth.GET("/me", middleware.AuthMiddleware(), handler.GetMe)
 			auth.POST("/logout", middleware.AuthMiddleware(), handler.Logout)
 
@@ -62,7 +62,7 @@ client := api.Group("/clients")
 		{
 			client.POST("/", middleware.AuthMiddleware(), clientHandler.CreateClientHandler)
 			client.GET("/:id", middleware.AuthMiddleware(), clientHandler.GetClientHandler)
-			client.PUT("/:id", middleware.AuthMiddleware(), clientHandler.UpdateClientHandler)
+			client.PUT("/update/:id", middleware.AuthMiddleware(), clientHandler.UpdateClientHandler)
 			client.DELETE("/:id", middleware.AuthMiddleware(), clientHandler.DeleteClientHandler)
 		}
 

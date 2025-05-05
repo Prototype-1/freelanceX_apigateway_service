@@ -6,8 +6,9 @@ import (
 	"net/http"
 	"strings"
 	"github.com/Prototype-1/freelanceX_apigateway_service/pkg/jwt"
-	"github.com/Prototype-1/freelanceX_apigateway_service/pkg/redis" 
+	redis "github.com/Prototype-1/freelanceX_apigateway_service/pkg/redis" 
 	"github.com/gin-gonic/gin"
+	"log"
 )
 
 func AuthMiddleware() gin.HandlerFunc {
@@ -17,13 +18,11 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header missing"})
 			return
 		}
-
 		parts := strings.Split(authHeader, "Bearer ")
 		if len(parts) != 2 {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid Authorization header format"})
 			return
 		}
-
 		tokenStr := parts[1]
 		claims, err := jwt.ParseAccessToken(tokenStr)
 		if err != nil {
@@ -38,13 +37,18 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 		ctx := context.Background()
 		key := fmt.Sprintf("session:%s", sessionID)
-		exists, err := pkg.RedisClient.Exists(ctx, key).Result()
+		exists, err := redis.RedisClient.Exists(ctx, key).Result()
 		if err != nil || exists == 0 {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Session not found or expired"})
 			return
 		}
+
 		c.Set("user_id", claims.UserID)
+		c.Set("role", claims.Role) 
 		c.Set("session_id", sessionID)
+
+		log.Printf("Authenticated user %s with role %s", claims.UserID, claims.Role)
+		
 		c.Next()
 	}
 }
