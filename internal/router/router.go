@@ -60,7 +60,7 @@ proposal := r.Group("/proposal")
 
 client := api.Group("/clients")
 		{
-			client.POST("/", middleware.AuthMiddleware(), clientHandler.CreateClientHandler)
+			client.POST("/create", middleware.AuthMiddleware(), clientHandler.CreateClientHandler)
 			client.GET("/:id", middleware.AuthMiddleware(), clientHandler.GetClientHandler)
 			client.PUT("/update/:id", middleware.AuthMiddleware(), clientHandler.UpdateClientHandler)
 			client.DELETE("/:id", middleware.AuthMiddleware(), clientHandler.DeleteClientHandler)

@@ -3,9 +3,11 @@ package handlers
 import (
 	"context"
 	"net/http"
-
 	projectpb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_project.crm_service/project"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc/metadata"
+	"fmt"
+	"github.com/google/uuid"
 )
 
 type ProjectHandler struct {
@@ -16,6 +18,19 @@ func NewProjectHandler(projectClient projectpb.ProjectServiceClient) *ProjectHan
 	return &ProjectHandler{ProjectClient: projectClient}
 }
 
+func getRoleFromContext(c *gin.Context) string {
+	role, exists := c.Get("role")
+	if !exists {
+		return "" 
+	}
+	return role.(string)
+}
+
+func validateUUID(clientId string) bool {
+	_, err := uuid.Parse(clientId)
+	return err == nil
+}
+
 func (h *ProjectHandler) CreateProjectHandler(c *gin.Context) {
 	var req projectpb.CreateProjectRequest
 	if err := c.BindJSON(&req); err != nil {
@@ -23,7 +38,20 @@ func (h *ProjectHandler) CreateProjectHandler(c *gin.Context) {
 		return
 	}
 
-	res, err := h.ProjectClient.CreateProject(context.Background(), &req)
+	role := getRoleFromContext(c)
+	fmt.Println("Role from header:", role)
+	if role != "client" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized: only clients can create projects"})
+		return
+	}
+
+	if !validateUUID(req.ClientId) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid clientId format"})
+		return
+	}
+
+	ctx := metadata.NewOutgoingContext(context.Background(), metadata.Pairs("role", role))
+	res, err := h.ProjectClient.CreateProject(ctx, &req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -35,7 +63,10 @@ func (h *ProjectHandler) CreateProjectHandler(c *gin.Context) {
 func (h *ProjectHandler) GetProjectsByUserHandler(c *gin.Context) {
 	userId := c.Param("userId")
 
-	res, err := h.ProjectClient.GetProjectsByUser(context.Background(), &projectpb.GetProjectsByUserRequest{UserId: userId})
+	role := getRoleFromContext(c)
+	ctx := metadata.NewOutgoingContext(context.Background(), metadata.Pairs("role", role))
+
+	res, err := h.ProjectClient.GetProjectsByUser(ctx, &projectpb.GetProjectsByUserRequest{UserId: userId})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -47,7 +78,10 @@ func (h *ProjectHandler) GetProjectsByUserHandler(c *gin.Context) {
 func (h *ProjectHandler) GetProjectByIdHandler(c *gin.Context) {
 	projectId := c.Param("id")
 
-	res, err := h.ProjectClient.GetProjectById(context.Background(), &projectpb.GetProjectByIdRequest{ProjectId: projectId})
+	role := getRoleFromContext(c)
+	ctx := metadata.NewOutgoingContext(context.Background(), metadata.Pairs("role", role))
+
+	res, err := h.ProjectClient.GetProjectById(ctx, &projectpb.GetProjectByIdRequest{ProjectId: projectId})
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -59,7 +93,10 @@ func (h *ProjectHandler) GetProjectByIdHandler(c *gin.Context) {
 func (h *ProjectHandler) DiscoverProjectsHandler(c *gin.Context) {
 	userId := c.Param("userId")
 
-	res, err := h.ProjectClient.DiscoverProjects(context.Background(), &projectpb.DiscoverProjectsRequest{UserId: userId})
+	role := getRoleFromContext(c)
+	ctx := metadata.NewOutgoingContext(context.Background(), metadata.Pairs("role", role))
+
+	res, err := h.ProjectClient.DiscoverProjects(ctx, &projectpb.DiscoverProjectsRequest{UserId: userId})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -74,8 +111,14 @@ func (h *ProjectHandler) AssignFreelancerHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	role := getRoleFromContext(c)
+	if role != "client" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized: only clients can assign freelancers"})
+		return
+	}
 
-	res, err := h.ProjectClient.AssignFreelancer(context.Background(), &req)
+	ctx := metadata.NewOutgoingContext(context.Background(), metadata.Pairs("role", role))
+	res, err := h.ProjectClient.AssignFreelancer(ctx, &req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -93,7 +136,14 @@ func (h *ProjectHandler) UpdateProjectHandler(c *gin.Context) {
 	}
 	req.ProjectId = id
 
-	res, err := h.ProjectClient.UpdateProject(context.Background(), &req)
+	role := getRoleFromContext(c)
+	if role != "client" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized: only clients can update projects"})
+		return
+	}
+
+	ctx := metadata.NewOutgoingContext(context.Background(), metadata.Pairs("role", role))
+	res, err := h.ProjectClient.UpdateProject(ctx, &req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -105,7 +155,14 @@ func (h *ProjectHandler) UpdateProjectHandler(c *gin.Context) {
 func (h *ProjectHandler) DeleteProjectHandler(c *gin.Context) {
 	id := c.Param("id")
 
-	res, err := h.ProjectClient.DeleteProject(context.Background(), &projectpb.DeleteProjectRequest{ProjectId: id})
+	role := getRoleFromContext(c)
+	if role != "admin" && role != "client" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized: only admins or clients can delete projects"})
+		return
+	}
+
+	ctx := metadata.NewOutgoingContext(context.Background(), metadata.Pairs("role", role))
+	res, err := h.ProjectClient.DeleteProject(ctx, &projectpb.DeleteProjectRequest{ProjectId: id})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

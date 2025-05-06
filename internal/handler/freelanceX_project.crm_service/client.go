@@ -47,7 +47,16 @@ func (h *ClientHandler) CreateClientHandler(c *gin.Context) {
 		return
 	}
 
-	md := metadata.Pairs("role", role)
+	sessionID := c.GetHeader("session_id")
+if sessionID == "" {
+	c.JSON(http.StatusUnauthorized, gin.H{"error": "session_id header is required"})
+	return
+}
+	md := metadata.Pairs(
+		"role", role,
+		"session_id", sessionID,
+		"user_id", claims.UserID,  
+	)
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
 	res, err := h.ClientClient.CreateClient(ctx, &req)
 	if err != nil {
@@ -58,11 +67,45 @@ func (h *ClientHandler) CreateClientHandler(c *gin.Context) {
 	c.JSON(http.StatusCreated, res.Client)
 }
 
-
 func (h *ClientHandler) GetClientHandler(c *gin.Context) {
 	id := c.Param("id")
 
-	res, err := h.ClientClient.GetClient(context.Background(), &clientpb.GetClientRequest{ClientId: id})
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authorization header is required"})
+		return
+	}
+	tokenParts := strings.Split(authHeader, " ")
+	if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token format"})
+		return
+	}
+	claims, err := jwt.ParseAccessToken(tokenParts[1])
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	role := claims.Role
+	if role != "client" && role != "admin" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "only client or admin allowed"})
+		return
+	}
+
+	sessionID := c.GetHeader("session_id")
+	if sessionID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "session_id header is required"})
+		return
+	}
+
+	md := metadata.Pairs(
+		"role", claims.Role,
+		"session_id", sessionID,
+		"user_id", claims.UserID,
+	)
+	ctx := metadata.NewOutgoingContext(context.Background(), md)
+
+	res, err := h.ClientClient.GetClient(ctx, &clientpb.GetClientRequest{ClientId: id})
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -81,7 +124,42 @@ func (h *ClientHandler) UpdateClientHandler(c *gin.Context) {
 	}
 	req.ClientId = id
 
-	res, err := h.ClientClient.UpdateClient(context.Background(), &req)
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authorization header is required"})
+		return
+	}
+	tokenParts := strings.Split(authHeader, " ")
+	if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token format"})
+		return
+	}
+	claims, err := jwt.ParseAccessToken(tokenParts[1])
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	role := claims.Role
+	if role != "client" && role != "admin" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "only client or admin allowed"})
+		return
+	}
+
+	sessionID := c.GetHeader("session_id")
+	if sessionID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "session_id header is required"})
+		return
+	}
+
+	md := metadata.Pairs(
+		"role", claims.Role,
+		"session_id", sessionID,
+		"user_id", claims.UserID,
+	)
+	ctx := metadata.NewOutgoingContext(context.Background(), md)
+
+	res, err := h.ClientClient.UpdateClient(ctx, &req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -93,7 +171,42 @@ func (h *ClientHandler) UpdateClientHandler(c *gin.Context) {
 func (h *ClientHandler) DeleteClientHandler(c *gin.Context) {
 	id := c.Param("id")
 
-	res, err := h.ClientClient.DeleteClient(context.Background(), &clientpb.DeleteClientRequest{ClientId: id})
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authorization header is required"})
+		return
+	}
+	tokenParts := strings.Split(authHeader, " ")
+	if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token format"})
+		return
+	}
+	claims, err := jwt.ParseAccessToken(tokenParts[1])
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	role := claims.Role
+	if role != "client" && role != "admin" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "only client or admin allowed"})
+		return
+	}
+
+	sessionID := c.GetHeader("session_id")
+	if sessionID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "session_id header is required"})
+		return
+	}
+
+	md := metadata.Pairs(
+		"role", claims.Role,
+		"session_id", sessionID,
+		"user_id", claims.UserID,
+	)
+	ctx := metadata.NewOutgoingContext(context.Background(), md)
+
+	res, err := h.ClientClient.DeleteClient(ctx, &clientpb.DeleteClientRequest{ClientId: id})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -101,3 +214,4 @@ func (h *ClientHandler) DeleteClientHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"status": res.Status})
 }
+

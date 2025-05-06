@@ -69,7 +69,6 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{
 		"access_token": res.AccessToken,
 		"session_id":   res.SessionId,
@@ -156,7 +155,7 @@ func SelectRole(c *gin.Context) {
 }
 
 func GetMe(c *gin.Context) {
-	sessionID := c.GetHeader("X-Session-ID")
+	sessionID := c.GetHeader("session_id")
 	if sessionID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing X-Session-ID header"})
 		return
@@ -185,7 +184,7 @@ func GetMe(c *gin.Context) {
 }
 
 func Logout(c *gin.Context) {
-	sessionID := c.GetHeader("X-Session-ID")
+	sessionID := c.GetHeader("session_id")
 	if sessionID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing session ID"})
 		return

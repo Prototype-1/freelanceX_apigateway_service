@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/golang-jwt/jwt/v4"
-	redis "github.com/Prototype-1/freelanceX_apigateway_service/pkg/redis"
+	 "github.com/Prototype-1/freelanceX_apigateway_service/pkg/redis"
 	"github.com/Prototype-1/freelanceX_apigateway_service/config"
 	"log"
 )
@@ -31,10 +31,12 @@ func ParseAccessToken(tokenStr string) (*Claims, error) {
 
 func ValidateSession(sessionID, userID string) bool {
 	ctx := context.Background()
-	storedUserID, err := redis.RedisClient.Get(ctx, "session:"+sessionID).Result()
+	log.Printf("Validating session: %s for user: %s", sessionID, userID)
+	storedUserID, err := pkg.RedisClient.Get(ctx, "session:"+sessionID).Result()
 	if err != nil {
 		log.Println("Redis session error:", err)
 		return false
 	}
+	log.Printf("Comparing userID: %s with stored: %s", userID, storedUserID)
 	return storedUserID == userID
 }
