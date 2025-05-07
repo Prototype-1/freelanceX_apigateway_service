@@ -5,6 +5,7 @@ import (
 "github.com/Prototype-1/freelanceX_apigateway_service/internal/client"
 	profilePb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_user_service/profile"
 	"github.com/gin-gonic/gin"
+		"github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_user_service/utils"
 )
 
 func CreateProfile(c *gin.Context) {
@@ -14,7 +15,9 @@ func CreateProfile(c *gin.Context) {
 		return
 	}
 
-	res, err := client.ProfileClient.CreateProfile(c, &req)
+	ctx := utils.InjectMetadataFromGin(c)
+
+	res, err := client.ProfileClient.CreateProfile(ctx, &req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -30,7 +33,9 @@ func UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	res, err := client.ProfileClient.UpdateProfile(c, &req)
+	ctx := utils.InjectMetadataFromGin(c)
+
+	res, err := client.ProfileClient.UpdateProfile(ctx, &req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -45,9 +50,10 @@ func GetProfile(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
 	}
+	ctx := utils.InjectMetadataFromGin(c)
 
 	req := &profilePb.GetProfileRequest{UserId: userID}
-	res, err := client.ProfileClient.GetProfile(c, req)
+	res, err := client.ProfileClient.GetProfile(ctx, req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

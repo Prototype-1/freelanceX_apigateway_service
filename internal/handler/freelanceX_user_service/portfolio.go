@@ -4,10 +4,10 @@ import (
 	"context"
 	"net/http"
 	"time"
-
 	pb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_user_service/portfolio"
 	"github.com/gin-gonic/gin"
 	"github.com/Prototype-1/freelanceX_apigateway_service/internal/client"
+	"github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_user_service/utils"
 )
 
 func CreatePortfolio(c *gin.Context) {
@@ -24,7 +24,8 @@ func CreatePortfolio(c *gin.Context) {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx := utils.InjectMetadataFromGin(c)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
 	_, err := client.PortfolioClient.CreatePortfolio(ctx, &pb.CreatePortfolioRequest{
@@ -45,7 +46,8 @@ func CreatePortfolio(c *gin.Context) {
 func GetPortfolio(c *gin.Context) {
 	freelancerID := c.Param("freelancer_id")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx := utils.InjectMetadataFromGin(c)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
 	res, err := client.PortfolioClient.GetPortfolio(ctx, &pb.GetPortfolioRequest{
@@ -62,8 +64,10 @@ func GetPortfolio(c *gin.Context) {
 func DeletePortfolio(c *gin.Context) {
 	portfolioID := c.Param("portfolio_id")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx := utils.InjectMetadataFromGin(c)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
+
 
 	_, err := client.PortfolioClient.DeletePortfolio(ctx, &pb.DeletePortfolioRequest{
 		PortfolioId: portfolioID,

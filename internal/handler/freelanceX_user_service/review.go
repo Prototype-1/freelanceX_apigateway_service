@@ -3,10 +3,10 @@ package handler
 import (
 	"net/http"
 	"time"
-
 	"github.com/gin-gonic/gin"
 	"github.com/Prototype-1/freelanceX_apigateway_service/internal/client"
 	reviewPb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_user_service/review"
+		"github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_user_service/utils"
 )
 
 type SubmitReviewRequest struct {
@@ -29,7 +29,9 @@ func SubmitReview(c *gin.Context) {
 		return
 	}
 
-	res, err := client.ReviewClient.SubmitReview(c, &reviewPb.ReviewRequest{
+	ctx := utils.InjectMetadataFromGin(c)
+
+	res, err := client.ReviewClient.SubmitReview(ctx, &reviewPb.ReviewRequest{
 		ProjectId:    req.ProjectID,
 		FreelancerId: req.FreelancerID,
 		ClientId:     clientID.(string),
@@ -59,7 +61,9 @@ func GetFreelancerReviews(c *gin.Context) {
 		return
 	}
 
-	res, err := client.ReviewClient.GetFreelancerReviews(c, &reviewPb.GetReviewRequest{FreelancerId: freelancerID})
+	ctx := utils.InjectMetadataFromGin(c)
+
+	res, err := client.ReviewClient.GetFreelancerReviews(ctx, &reviewPb.GetReviewRequest{FreelancerId: freelancerID})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
