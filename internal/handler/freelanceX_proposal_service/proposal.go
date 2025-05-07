@@ -7,7 +7,15 @@ import (
 	"github.com/Prototype-1/freelanceX_apigateway_service/internal/client"
 	pb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_proposal_service"
 	"fmt"
+	"google.golang.org/grpc/metadata"
 )
+
+func withMetadata(c *gin.Context) context.Context {
+	userID := c.GetString("user_id")
+	role := c.GetString("role")
+	md := metadata.Pairs("user_id", userID, "role", role)
+	return metadata.NewOutgoingContext(c.Request.Context(), md)
+}
 
 func CreateProposalHandler(c *gin.Context) {
 	var req struct {
@@ -16,9 +24,9 @@ func CreateProposalHandler(c *gin.Context) {
 		TemplateID   string `json:"template_id"`
 		Title        string `json:"title"`
 		Content      string `json:"content"`
-		Status       string `json:"status"` // draft or sent
+		Status       string `json:"status"` 
 		Version      int32  `json:"version"`
-		Deadline     string `json:"deadline"` // RFC3339 format
+		Deadline     string `json:"deadline"` 
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -36,7 +44,7 @@ func CreateProposalHandler(c *gin.Context) {
 		DeadlineStr:  req.Deadline,
 	}
 
-	resp, err := client.ProposalClient.CreateProposal(context.Background(), grpcReq)
+	resp, err := client.ProposalClient.CreateProposal(withMetadata(c), grpcReq)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -48,7 +56,7 @@ func CreateProposalHandler(c *gin.Context) {
 func GetProposalByIDHandler(c *gin.Context) {
 	proposalID := c.Param("id")
 
-	resp, err := client.ProposalClient.GetProposalByID(context.Background(), &pb.GetProposalRequest{
+	resp, err := client.ProposalClient.GetProposalByID(withMetadata(c), &pb.GetProposalRequest{
 		ProposalId: proposalID,
 	})
 	if err != nil {
@@ -66,7 +74,7 @@ func UpdateProposalHandler(c *gin.Context) {
 		Title       string `json:"title"`
 		Content     string `json:"content"`
 		Version     int32  `json:"version"`
-		Deadline    string `json:"deadline"` // RFC3339 format
+		Deadline    string `json:"deadline"` 
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -82,7 +90,7 @@ func UpdateProposalHandler(c *gin.Context) {
 		DeadlineStr: req.Deadline,
 	}
 
-	resp, err := client.ProposalClient.UpdateProposal(context.Background(), grpcReq)
+	resp, err := client.ProposalClient.UpdateProposal(withMetadata(c), grpcReq)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -114,7 +122,7 @@ func ListProposalsHandler(c *gin.Context) {
 		Limit:        limitVal,
 	}
 
-	resp, err := client.ProposalClient.ListProposals(context.Background(), grpcReq)
+	resp, err := client.ProposalClient.ListProposals(withMetadata(c), grpcReq)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -141,7 +149,7 @@ func SaveTemplateHandler(c *gin.Context) {
 		Content:      req.Content,
 	}
 
-	resp, err := client.ProposalClient.SaveTemplate(context.Background(), grpcReq)
+	resp, err := client.ProposalClient.SaveTemplate(withMetadata(c), grpcReq)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -153,7 +161,7 @@ func SaveTemplateHandler(c *gin.Context) {
 func GetTemplatesHandler(c *gin.Context) {
 	freelancerID := c.Param("freelancer_id")
 
-	resp, err := client.ProposalClient.GetTemplatesForFreelancer(context.Background(), &pb.GetTemplatesRequest{
+	resp, err := client.ProposalClient.GetTemplatesForFreelancer(withMetadata(c), &pb.GetTemplatesRequest{
 		FreelancerId: freelancerID,
 	})
 	if err != nil {
