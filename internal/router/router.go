@@ -5,6 +5,7 @@ import (
 	"github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_user_service"
 	proposalhdlr "github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_proposal_service"
 	projecthdlr "github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_project.crm_service"
+	timeTrackerHdlr "github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_timeTracker_service"
 	"github.com/Prototype-1/freelanceX_apigateway_service/middleware"
 )
 
@@ -68,14 +69,23 @@ client := api.Group("/clients")
 
 		project := api.Group("/projects")
 		{
-			project.POST("/", middleware.AuthMiddleware(), projectHandler.CreateProjectHandler)
+			project.POST("/create", middleware.AuthMiddleware(), projectHandler.CreateProjectHandler)
 			project.GET("/user/:userId", middleware.AuthMiddleware(), projectHandler.GetProjectsByUserHandler)
 			project.GET("/:id", middleware.AuthMiddleware(), projectHandler.GetProjectByIdHandler)
 			project.GET("/discover/:userId", middleware.AuthMiddleware(), projectHandler.DiscoverProjectsHandler)
 			project.POST("/assign", middleware.AuthMiddleware(), projectHandler.AssignFreelancerHandler)
-			project.PUT("/:id", middleware.AuthMiddleware(), projectHandler.UpdateProjectHandler)
-			project.DELETE("/:id", middleware.AuthMiddleware(), projectHandler.DeleteProjectHandler)
+			project.PUT("/update//:id", middleware.AuthMiddleware(), projectHandler.UpdateProjectHandler)
+			project.DELETE("/delete/:id", middleware.AuthMiddleware(), projectHandler.DeleteProjectHandler)
 		}
+
+		timeTracker := api.Group("/time-tracker")
+	{
+		timeTracker.POST("/logs/create", middleware.AuthMiddleware(), timeTrackerHdlr.CreateTimeLogHandler)
+		timeTracker.GET("/logs/user/:userId", middleware.AuthMiddleware(), timeTrackerHdlr.GetTimeLogsByUserHandler)
+		timeTracker.GET("/logs/project/:projectId", middleware.AuthMiddleware(), timeTrackerHdlr.GetTimeLogsByProjectHandler)
+		timeTracker.PUT("/logs/update//:logId", middleware.AuthMiddleware(), timeTrackerHdlr.UpdateTimeLogHandler)
+		timeTracker.DELETE("/logs/delete/:logId", middleware.AuthMiddleware(), timeTrackerHdlr.DeleteTimeLogHandler)
+	}
 
 	}
 	return r
