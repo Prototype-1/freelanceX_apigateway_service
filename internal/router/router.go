@@ -66,7 +66,6 @@ client := api.Group("/clients")
 			client.DELETE("/:id", middleware.AuthMiddleware(), clientHandler.DeleteClientHandler)
 		}
 
-		// Project routes
 		project := api.Group("/projects")
 		{
 			project.POST("/", middleware.AuthMiddleware(), projectHandler.CreateProjectHandler)

@@ -12,6 +12,7 @@ import (
 	proposalPb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_proposal_service"
 	projectPb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_project.crm_service/project"
 	clientsPb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_project.crm_service/client"
+	timePb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_timeTracker_service"
 )
 
 var (
@@ -24,6 +25,8 @@ var (
 
 	ProjectClient projectPb.ProjectServiceClient
 	ClientClient  clientsPb.ClientServiceClient
+
+	TimeClient timePb.TimeLogServiceClient
 )
 
 	// --- USER SERVICE ---
@@ -83,3 +86,20 @@ func InitCrmServiceClients() {
 	log.Println("Connected to CRM Service via gRPC at", crmGrpcAddr)
 }
 
+// --- TIME LOG SERVICE ---
+
+func InitTimeServiceClients() {
+	timeGrpcAddr := os.Getenv("TIMELOG_SERVICE_GRPC_ADDR")
+	if timeGrpcAddr == "" {
+		timeGrpcAddr = "localhost:50054"
+	}
+
+	timeConn, err := grpc.NewClient(timeGrpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("Failed to create CRM service gRPC client: %v", err)
+	}
+
+	TimeClient = timePb.NewTimeLogServiceClient(timeConn)
+
+	log.Println("Connected to CRM Service via gRPC at", timeGrpcAddr)
+}

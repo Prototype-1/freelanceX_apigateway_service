@@ -22,6 +22,7 @@ func main() {
 	client.InitUserServiceClients()
 	client.InitProposalServiceCLient()
 	client.InitCrmServiceClients()
+	client.InitTimeServiceClients()
 
 	clientHandler := &projecthdlr.ClientHandler{ClientClient: client.ClientClient}
 	projectHandler := &projecthdlr.ProjectHandler{ProjectClient: client.ProjectClient}	
