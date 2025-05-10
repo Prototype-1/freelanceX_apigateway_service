@@ -30,31 +30,31 @@ func SetupRouter(
 
 		portfolio := r.Group("/portfolio")
 {
-	portfolio.POST("/", middleware.AuthMiddleware(), handler.CreatePortfolio)
-	portfolio.GET("/:freelancer_id", middleware.AuthMiddleware(), handler.GetPortfolio)
-	portfolio.DELETE("/:portfolio_id", middleware.AuthMiddleware(), handler.DeletePortfolio)
+	portfolio.POST("/create", middleware.AuthMiddleware(), handler.CreatePortfolio)
+	portfolio.GET("/get/:freelancer_id", middleware.AuthMiddleware(), handler.GetPortfolio)
+	portfolio.DELETE("/delete/:portfolio_id", middleware.AuthMiddleware(), handler.DeletePortfolio)
 }
 
 profile := r.Group("/profile")
 {
-	profile.POST("/", middleware.AuthMiddleware(), handler.CreateProfile)
+	profile.POST("/create", middleware.AuthMiddleware(), handler.CreateProfile)
 	profile.PUT("/update", middleware.AuthMiddleware(), handler.UpdateProfile)
-	profile.GET("/:user_id", middleware.AuthMiddleware(), handler.GetProfile)
+	profile.GET("/get/:user_id", middleware.AuthMiddleware(), handler.GetProfile)
 }
 
 review := api.Group("/review")
 {
-	review.POST("/", middleware.AuthMiddleware(), handler.SubmitReview)
-	review.GET("/:freelancer_id", middleware.AuthMiddleware(), handler.GetFreelancerReviews)
+	review.POST("/submit", middleware.AuthMiddleware(), handler.SubmitReview)
+	review.GET("/get/:freelancer_id", middleware.AuthMiddleware(), handler.GetFreelancerReviews)
 }
 
 proposal := r.Group("/proposal")
 {
-	proposal.POST("/proposal", middleware.AuthMiddleware(), proposalhdlr.CreateProposalHandler)
-	proposal.GET("/proposal/:id", middleware.AuthMiddleware(), proposalhdlr.GetProposalByIDHandler)
-	proposal.PUT("/proposal/:id", middleware.AuthMiddleware(), proposalhdlr.UpdateProposalHandler)
-	proposal.GET("/proposals", middleware.AuthMiddleware(), proposalhdlr.ListProposalsHandler)
-	proposal.POST("/template", middleware.AuthMiddleware(), proposalhdlr.SaveTemplateHandler)
+	proposal.POST("/create", middleware.AuthMiddleware(), proposalhdlr.CreateProposalHandler)
+	proposal.GET("/get/:id", middleware.AuthMiddleware(), proposalhdlr.GetProposalByIDHandler)
+	proposal.PUT("/update/:id", middleware.AuthMiddleware(), proposalhdlr.UpdateProposalHandler)
+	proposal.GET("/listall", middleware.AuthMiddleware(), proposalhdlr.ListProposalsHandler)
+	proposal.POST("/template/save", middleware.AuthMiddleware(), proposalhdlr.SaveTemplateHandler)
 	proposal.GET("/templates/:freelancer_id", middleware.AuthMiddleware(), proposalhdlr.GetTemplatesHandler)
 	
 }
@@ -62,19 +62,19 @@ proposal := r.Group("/proposal")
 client := api.Group("/clients")
 		{
 			client.POST("/create", middleware.AuthMiddleware(), clientHandler.CreateClientHandler)
-			client.GET("/:id", middleware.AuthMiddleware(), clientHandler.GetClientHandler)
+			client.GET("/get/:id", middleware.AuthMiddleware(), clientHandler.GetClientHandler)
 			client.PUT("/update/:id", middleware.AuthMiddleware(), clientHandler.UpdateClientHandler)
-			client.DELETE("/:id", middleware.AuthMiddleware(), clientHandler.DeleteClientHandler)
+			client.DELETE("/delete/:id", middleware.AuthMiddleware(), clientHandler.DeleteClientHandler)
 		}
 
 		project := api.Group("/projects")
 		{
 			project.POST("/create", middleware.AuthMiddleware(), projectHandler.CreateProjectHandler)
-			project.GET("/user/:userId", middleware.AuthMiddleware(), projectHandler.GetProjectsByUserHandler)
-			project.GET("/:id", middleware.AuthMiddleware(), projectHandler.GetProjectByIdHandler)
+			project.GET("/get/:userId", middleware.AuthMiddleware(), projectHandler.GetProjectsByUserHandler)
+			project.GET("/get/:id", middleware.AuthMiddleware(), projectHandler.GetProjectByIdHandler)
 			project.GET("/discover/:userId", middleware.AuthMiddleware(), projectHandler.DiscoverProjectsHandler)
 			project.POST("/assign", middleware.AuthMiddleware(), projectHandler.AssignFreelancerHandler)
-			project.PUT("/update//:id", middleware.AuthMiddleware(), projectHandler.UpdateProjectHandler)
+			project.PUT("/update/:id", middleware.AuthMiddleware(), projectHandler.UpdateProjectHandler)
 			project.DELETE("/delete/:id", middleware.AuthMiddleware(), projectHandler.DeleteProjectHandler)
 		}
 
@@ -83,7 +83,7 @@ client := api.Group("/clients")
 		timeTracker.POST("/logs/create", middleware.AuthMiddleware(), timeTrackerHdlr.CreateTimeLogHandler)
 		timeTracker.GET("/logs/user/:userId", middleware.AuthMiddleware(), timeTrackerHdlr.GetTimeLogsByUserHandler)
 		timeTracker.GET("/logs/project/:projectId", middleware.AuthMiddleware(), timeTrackerHdlr.GetTimeLogsByProjectHandler)
-		timeTracker.PUT("/logs/update//:logId", middleware.AuthMiddleware(), timeTrackerHdlr.UpdateTimeLogHandler)
+		timeTracker.PUT("/logs/update/:logId", middleware.AuthMiddleware(), timeTrackerHdlr.UpdateTimeLogHandler)
 		timeTracker.DELETE("/logs/delete/:logId", middleware.AuthMiddleware(), timeTrackerHdlr.DeleteTimeLogHandler)
 	}
 
