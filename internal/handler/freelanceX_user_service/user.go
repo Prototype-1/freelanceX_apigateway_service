@@ -155,33 +155,38 @@ func SelectRole(c *gin.Context) {
 }
 
 func GetMe(c *gin.Context) {
-	sessionID := c.GetHeader("session_id")
-	if sessionID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing X-Session-ID header"})
-		return
-	}
+    userID := c.GetString("user_id")
+    sessionID := c.GetString("session_id") 
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
-	defer cancel()
+    if userID == "" || sessionID == "" {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized: missing user context"})
+        return
+    }
 
-	res, err := client.AuthClient.GetMe(ctx, &authPb.SessionRequest{
-		SessionId: sessionID,
-	})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+    defer cancel()
+    res, err := client.AuthClient.GetMe(ctx, &authPb.SessionRequest{
+        Token:     c.GetHeader("Authorization")[7:], 
+        SessionId: sessionID,
+        UserId:    userID, 
+    })
 
-	c.JSON(http.StatusOK, gin.H{
-		"user": gin.H{
-			"id":              res.Id,
-			"name":            res.Name,
-			"email":           res.Email,
-			"role":            res.Role,
-			"is_role_selected": res.IsRoleSelected,
-		},
-	})
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{
+        "user": gin.H{
+            "id":               res.Id,
+            "name":             res.Name,
+            "email":            res.Email,
+            "role":             res.Role,
+            "is_role_selected": res.IsRoleSelected,
+        },
+    })
 }
+
 
 func Logout(c *gin.Context) {
 	sessionID := c.GetHeader("session_id")

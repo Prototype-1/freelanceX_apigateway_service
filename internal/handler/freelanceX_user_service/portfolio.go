@@ -45,7 +45,6 @@ func CreatePortfolio(c *gin.Context) {
 
 func GetPortfolio(c *gin.Context) {
 	freelancerID := c.Param("freelancer_id")
-
 	ctx := utils.InjectMetadataFromGin(c)
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
