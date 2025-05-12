@@ -111,7 +111,7 @@ func InitTimeServiceClients() {
 func InitMessageServiceClient() {
     messageGrpcAddr := os.Getenv("MESSAGE_SERVICE_GRPC_ADDR")
     if messageGrpcAddr == "" {
-        messageGrpcAddr = "localhost:50055" // or whatever port
+        messageGrpcAddr = "localhost:50055" 
     }
 
     conn, err := grpc.NewClient(messageGrpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
