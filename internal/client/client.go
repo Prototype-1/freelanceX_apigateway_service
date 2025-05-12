@@ -13,6 +13,7 @@ import (
 	projectPb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_project.crm_service/project"
 	clientsPb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_project.crm_service/client"
 	timePb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_timeTracker_service"
+	messagePb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_message.notification_service"
 )
 
 var (
@@ -27,6 +28,8 @@ var (
 	ClientClient  clientsPb.ClientServiceClient
 
 	TimeClient timePb.TimeLogServiceClient
+
+	 MessageClient messagePb.MessageServiceClient
 )
 
 	// --- USER SERVICE ---
@@ -102,4 +105,21 @@ func InitTimeServiceClients() {
 	TimeClient = timePb.NewTimeLogServiceClient(timeConn)
 
 	log.Println("Connected to CRM Service via gRPC at", timeGrpcAddr)
+}
+
+//---MESSAGE SERVICE---
+func InitMessageServiceClient() {
+    messageGrpcAddr := os.Getenv("MESSAGE_SERVICE_GRPC_ADDR")
+    if messageGrpcAddr == "" {
+        messageGrpcAddr = "localhost:50055" // or whatever port
+    }
+
+    conn, err := grpc.NewClient(messageGrpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+    if err != nil {
+        log.Fatalf("Failed to connect to message service: %v", err)
+    }
+
+    MessageClient = messagePb.NewMessageServiceClient(conn)
+
+    log.Println("Connected to Message Service via gRPC at", messageGrpcAddr)
 }

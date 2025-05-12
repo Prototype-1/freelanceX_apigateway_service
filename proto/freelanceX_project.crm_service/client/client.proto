@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package freelanceX.crm;
 
-option go_package = "freelanceX_project.crm_service/client;clientpb";
+option go_package = "github.com/Prototype-1/freelanceX_apigateway-service/proto/freelanceX_message.notification_service";
 
 import "google/protobuf/timestamp.proto";
 

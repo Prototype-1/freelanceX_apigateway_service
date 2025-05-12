@@ -1,13 +1,14 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_user_service"
-	proposalhdlr "github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_proposal_service"
+	"github.com/Prototype-1/freelanceX_apigateway_service/internal/client"
 	projecthdlr "github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_project.crm_service"
+	proposalhdlr "github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_proposal_service"
 	timeTrackerHdlr "github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_timeTracker_service"
+	"github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_user_service"
 	"github.com/Prototype-1/freelanceX_apigateway_service/middleware"
 	"github.com/Prototype-1/freelanceX_apigateway_service/websocket"
+	"github.com/gin-gonic/gin"
 )
 
 func SetupRouter(
@@ -20,7 +21,7 @@ func SetupRouter(
     go hub.Run()
 
     wsGroup := r.Group("/ws")
-    wsGroup.GET("/messages", middleware.AuthMiddleware(), websocket.ServeWS(hub))
+    wsGroup.GET("/messages", middleware.AuthMiddleware(), websocket.ServeWS(hub, client.MessageClient))
 
 	api := r.Group("/api")
 	{
