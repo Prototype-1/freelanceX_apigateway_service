@@ -7,6 +7,7 @@ import (
 	projecthdlr "github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_project.crm_service"
 	timeTrackerHdlr "github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_timeTracker_service"
 	"github.com/Prototype-1/freelanceX_apigateway_service/middleware"
+	"github.com/Prototype-1/freelanceX_apigateway_service/websocket"
 )
 
 func SetupRouter(
@@ -14,6 +15,12 @@ func SetupRouter(
 	projectHandler *projecthdlr.ProjectHandler,
 ) *gin.Engine {
 	r := gin.Default()
+
+	 hub := websocket.NewHub()
+    go hub.Run()
+
+    wsGroup := r.Group("/ws")
+    wsGroup.GET("/messages", middleware.AuthMiddleware(), websocket.ServeWS(hub))
 
 	api := r.Group("/api")
 	{
