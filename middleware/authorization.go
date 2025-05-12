@@ -57,7 +57,7 @@ func AuthMiddleware() gin.HandlerFunc {
         
         if err != nil {
             log.Println("Redis error:", err)
-            c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Session not found or expired"})
+            c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Session not found or expired. Please login again"})
             return
         }
         
