@@ -24,6 +24,17 @@ type MessagePayload struct {
 }
 
 func (c *Client) ReadPump() {
+
+    if c.MessageClient == nil {
+        log.Println("MessageClient is nil in ReadPump")
+    }
+    if c.Hub == nil {
+        log.Println("Hub is nil in ReadPump")
+    }
+    if c.Conn == nil {
+        log.Println("Conn is nil in ReadPump")
+    }
+    
     defer func() {
         c.Hub.unregister <- c
         c.Conn.Close()
