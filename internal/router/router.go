@@ -6,6 +6,7 @@ import (
 	proposalhdlr "github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_proposal_service"
 	timeTrackerHdlr "github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_timeTracker_service"
 	"github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_user_service"
+	messagehdlr "github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_message.notification_service"
 	"github.com/Prototype-1/freelanceX_apigateway_service/middleware"
 	"github.com/Prototype-1/freelanceX_apigateway_service/websocket"
 	"github.com/gin-gonic/gin"
@@ -19,6 +20,7 @@ func SetupRouter(
 
 	 hub := websocket.NewHub()
     go hub.Run()
+	messageHandler := messagehdlr.NewMessageHandler(client.MessageClient)
 
     wsGroup := r.Group("/ws")
     wsGroup.GET("/messages", middleware.AuthMiddleware(), websocket.ServeWS(hub, client.MessageClient))
@@ -94,6 +96,9 @@ client := api.Group("/clients")
 		timeTracker.PUT("/logs/update/:logId", middleware.AuthMiddleware(), timeTrackerHdlr.UpdateTimeLogHandler)
 		timeTracker.DELETE("/logs/delete/:logId", middleware.AuthMiddleware(), timeTrackerHdlr.DeleteTimeLogHandler)
 	}
+
+	message := api.Group("/message")
+	message.GET("/get/all", middleware.AuthMiddleware(), messageHandler.GetMessages)
 
 	}
 	return r
