@@ -4,6 +4,9 @@ import (
     "context"
  "github.com/gorilla/websocket"
     "log"
+    "encoding/json"
+    "time"
+    "github.com/Prototype-1/freelanceX_apigateway_service/kafka"
    pb  "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_message.notification_service"
 )
 
@@ -34,7 +37,7 @@ func (c *Client) ReadPump() {
     if c.Conn == nil {
         log.Println("Conn is nil in ReadPump")
     }
-    
+
     defer func() {
         c.Hub.unregister <- c
         c.Conn.Close()
@@ -59,10 +62,21 @@ func (c *Client) ReadPump() {
             log.Printf("gRPC send failed: %v", err)
             continue
         }
+          kafkaEvent := map[string]interface{}{
+            "from_user_id": msg.FromUserID,
+            "to_user_id":   msg.ToUserID,
+            "project_id":   msg.ProjectID,
+            "content":      msg.Message,
+            "timestamp":    time.Now().Format(time.RFC3339),
+        }
+        jsonEvent, err := json.Marshal(kafkaEvent)
+        if err == nil {
+            _ = kafka.SendMessage("new.message", msg.FromUserID, jsonEvent)
+        }
+
         c.Hub.broadcast <- msg
     }
 }
-
 
 func (c *Client) WritePump() {
     for msg := range c.Send {
