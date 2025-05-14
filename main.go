@@ -18,7 +18,7 @@ func main() {
 		log.Println(".env file not found, using environment variables")
 	}
 
-	err = kafka.InitKafkaProducer([]string{"localhost:9093"}) 
+	err = kafka.InitKafkaProducer([]string{"localhost:9092"})
 	if err != nil {
 		log.Fatalf("Kafka init failed: %v", err)
 	}
