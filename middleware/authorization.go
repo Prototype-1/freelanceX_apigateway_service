@@ -37,23 +37,32 @@ func AuthMiddleware() gin.HandlerFunc {
             sessionID = c.GetHeader("session_id")
             log.Printf("Session ID from header: %s", sessionID)
         } else if isWebSocket {
-            tokenStr = c.Query("token")
-            sessionID = c.Query("session_id")
-
-          displayToken := tokenStr
+    authHeader := c.GetHeader("Authorization")
+    if authHeader != "" {
+        parts := strings.Split(authHeader, "Bearer ")
+        if len(parts) == 2 {
+            tokenStr = parts[1]
+        } else {
+            log.Println("Invalid Authorization header format for WebSocket")
+            c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid Authorization header format"})
+            return
+        }
+    }
+    sessionID = c.GetHeader("session_id")
+    displayToken := tokenStr
     if len(tokenStr) > 10 {
         displayToken = tokenStr[:10] + "...(truncated)"
     }
-    log.Printf("WebSocket auth - Token: %s, Session ID: %s", displayToken, sessionID)
+    log.Printf("WebSocket auth (from headers) - Token: %s, Session ID: %s", displayToken, sessionID)
 
-            if tokenStr == "" || sessionID == "" {
-                log.Println("Missing authentication parameters for WebSocket")
-                c.AbortWithStatusJSON(http.StatusUnauthorized, 
-                    gin.H{"error": "WebSocket connections require token and session_id query parameters"})
-                return
-            }
-        } else {
-            log.Println("Authorization header missing")
+    if tokenStr == "" || sessionID == "" {
+        log.Println("Missing authentication headers for WebSocket")
+        c.AbortWithStatusJSON(http.StatusUnauthorized, 
+            gin.H{"error": "WebSocket connections require Authorization and session_id headers"})
+        return
+    }
+} else {
+          log.Println("Authorization header missing")
             c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header missing"})
             return
         }
@@ -71,6 +80,7 @@ func AuthMiddleware() gin.HandlerFunc {
             c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Session ID missing"})
             return
         }
+        
         ctx := context.Background()
         key := fmt.Sprintf("session:%s", sessionID)
         storedUserID, err := redis.RedisClient.Get(ctx, key).Result()

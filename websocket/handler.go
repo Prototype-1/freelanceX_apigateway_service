@@ -43,3 +43,4 @@ func ServeWS(hub *Hub, messageClient pb.MessageServiceClient) gin.HandlerFunc {
         go client.ReadPump()
     }
 }
+
