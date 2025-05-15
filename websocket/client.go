@@ -24,6 +24,8 @@ type MessagePayload struct {
     ToUserID   string `json:"to_user_id"`
     ProjectID  string `json:"project_id"`
     Message    string `json:"message"`
+    SentAt     string `json:"sent_at"`
+     Status     string `json:"status"`
 }
 
 func (c *Client) ReadPump() {
@@ -51,7 +53,8 @@ func (c *Client) ReadPump() {
         }
 
         msg.FromUserID = c.UserID
-        _, err := c.MessageClient.SendMessage(c.Ctx, &pb.SendMessageRequest{
+
+        resp, err := c.MessageClient.SendMessage(c.Ctx, &pb.SendMessageRequest{
             FromUserId: msg.FromUserID,
             ToUserId:   msg.ToUserID,
             ProjectId:  msg.ProjectID,
@@ -62,19 +65,33 @@ func (c *Client) ReadPump() {
             log.Printf("gRPC send failed: %v", err)
             continue
         }
+
+    sentAt := ""
+    if resp.SentAt != nil {
+    sentAt = resp.SentAt.AsTime().Format(time.RFC3339)
+    msg.Status = "sent"
+}
+msgWithTime := MessagePayload{
+    FromUserID: msg.FromUserID,
+    ToUserID:   msg.ToUserID,
+    ProjectID:  msg.ProjectID,
+    Message:    msg.Message,
+    SentAt:     sentAt,
+}
+
           kafkaEvent := map[string]interface{}{
             "from_user_id": msg.FromUserID,
             "to_user_id":   msg.ToUserID,
             "project_id":   msg.ProjectID,
             "content":      msg.Message,
-            "timestamp":    time.Now().Format(time.RFC3339),
+            "timestamp":    sentAt,
         }
         jsonEvent, err := json.Marshal(kafkaEvent)
         if err == nil {
             _ = kafka.SendMessage("new.message", msg.FromUserID, jsonEvent)
         }
 
-        c.Hub.broadcast <- msg
+        c.Hub.broadcast <- msgWithTime
     }
 }
 
