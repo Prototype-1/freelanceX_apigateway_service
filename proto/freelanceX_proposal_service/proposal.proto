@@ -4,7 +4,7 @@ package proposal;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_proposal_service;proposal";
+option go_package = "proto/freelanceX_proposal_service;proposal";
 
 
 service ProposalService {
@@ -59,6 +59,7 @@ message UpdateProposalRequest {
   int32 version = 4;
   google.protobuf.Timestamp deadline = 5;
   string deadline_str = 6; 
+  string status = 7;
 }
 
 message UpdateProposalResponse {

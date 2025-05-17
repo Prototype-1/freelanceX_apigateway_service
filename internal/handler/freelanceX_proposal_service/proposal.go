@@ -7,6 +7,8 @@ import (
 	"github.com/Prototype-1/freelanceX_apigateway_service/internal/client"
 	pb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_proposal_service"
 	"fmt"
+	"time"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -75,6 +77,7 @@ func UpdateProposalHandler(c *gin.Context) {
 		Content     string `json:"content"`
 		Version     int32  `json:"version"`
 		Deadline    string `json:"deadline"` 
+		Status   string `json:"status"` 
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -88,7 +91,17 @@ func UpdateProposalHandler(c *gin.Context) {
 		Content:     req.Content,
 		Version:     req.Version,
 		DeadlineStr: req.Deadline,
+		Status:     req.Status,
 	}
+
+	if req.Deadline != "" {
+	if t, err := time.Parse(time.RFC3339, req.Deadline); err == nil {
+		grpcReq.Deadline = timestamppb.New(t)
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid deadline format"})
+		return
+	}
+}
 
 	resp, err := client.ProposalClient.UpdateProposal(withMetadata(c), grpcReq)
 	if err != nil {
