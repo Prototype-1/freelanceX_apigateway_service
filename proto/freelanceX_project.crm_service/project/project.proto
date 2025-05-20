@@ -24,6 +24,9 @@ message CreateProjectRequest {
   string description = 3;
   google.protobuf.Timestamp start_date = 4;
   google.protobuf.Timestamp end_date = 5;
+  repeated string required_skills = 6;
+  int32 min_experience = 7;
+  repeated string required_languages = 8;
 }
 
 message CreateProjectResponse {
@@ -38,7 +41,7 @@ message GetProjectsByUserRequest {
 message ProjectSummary {
   string project_id = 1;
   string project_name = 2;
-  string role = 3; // "client" or "freelancer"
+  string role = 3; 
   google.protobuf.Timestamp start_date = 4;
   google.protobuf.Timestamp end_date = 5;
 }
@@ -99,6 +102,9 @@ message UpdateProjectRequest {
   string project_name = 2;
   string description = 3;
   google.protobuf.Timestamp end_date = 4;
+  repeated string required_skills = 5;
+  int32 min_experience = 6;
+  repeated string required_languages = 7;
 }
 
 message UpdateProjectResponse {

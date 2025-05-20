@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.29.1
-// source: freelanceX_project.crm_service/project/project.proto
+// source: project.proto
 
 package projectpb
 
@@ -345,5 +345,5 @@ var ProjectService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "freelanceX_project.crm_service/project/project.proto",
+	Metadata: "project.proto",
 }
