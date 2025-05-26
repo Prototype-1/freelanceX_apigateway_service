@@ -29,7 +29,7 @@ var (
 
 	TimeClient timePb.TimeLogServiceClient
 
-	 MessageClient messagePb.MessageServiceClient
+    MessageClient messagePb.MessageServiceClient
 )
 
 	// --- USER SERVICE ---
