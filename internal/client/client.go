@@ -14,6 +14,8 @@ import (
 	clientsPb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_project.crm_service/client"
 	timePb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_timeTracker_service"
 	messagePb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_message.notification_service"
+	invoicePb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_invoice.payment_service/invoice"
+	milestonePb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_invoice.payment_service/milestone"
 )
 
 var (
@@ -30,6 +32,9 @@ var (
 	TimeClient timePb.TimeLogServiceClient
 
     MessageClient messagePb.MessageServiceClient
+
+	InvoiceClient invoicePb.InvoiceServiceClient
+	MilestoneClient milestonePb.MilestoneRuleServiceClient
 )
 
 	// --- USER SERVICE ---
@@ -122,4 +127,22 @@ func InitMessageServiceClient() {
     MessageClient = messagePb.NewMessageServiceClient(conn)
 
     log.Println("Connected to Message Service via gRPC at", messageGrpcAddr)
+}
+
+// --- INVOICE SERVICE ---
+func InitInvoiceServiceClients() {
+	invoiceGrpcAddr := os.Getenv("INVOICE_SERVICE_GRPC_ADDR")
+	if invoiceGrpcAddr == "" {
+		invoiceGrpcAddr = "localhost:50056"
+	}
+
+	InvConn, err := grpc.NewClient(invoiceGrpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("Failed to connect to user service: %v", err)
+	}
+
+	InvoiceClient = invoicePb.NewInvoiceServiceClient(InvConn)
+	MilestoneClient = milestonePb.NewMilestoneRuleServiceClient(InvConn)
+
+	log.Println("Connected to User Service via gRPC at", invoiceGrpcAddr)
 }
