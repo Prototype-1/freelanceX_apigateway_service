@@ -7,6 +7,7 @@ import (
 	timeTrackerHdlr "github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_timeTracker_service"
 	"github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_user_service"
 	messagehdlr "github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_message.notification_service"
+	invoicehdlr "github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_invoice.payment_service"
 	"github.com/Prototype-1/freelanceX_apigateway_service/middleware"
 	"github.com/Prototype-1/freelanceX_apigateway_service/websocket"
 	"github.com/gin-gonic/gin"
@@ -99,6 +100,23 @@ client := api.Group("/clients")
 
 	message := api.Group("/message")
 	message.GET("/get/all", middleware.AuthMiddleware(), messageHandler.GetMessages)
+
+invoiceGroup := r.Group("/invoices", middleware.AuthMiddleware())
+{
+	invoiceGroup.POST("", invoicehdlr.CreateInvoiceHandler)
+	invoiceGroup.GET("/:id", invoicehdlr.GetInvoiceHandler)
+	invoiceGroup.GET("/user/:userId", invoicehdlr.GetInvoicesByUserHandler)
+	invoiceGroup.GET("/project/:projectId", invoicehdlr.GetInvoicesByProjectHandler)
+	invoiceGroup.PUT("/:id/status", invoicehdlr.UpdateInvoiceStatusHandler)
+}
+
+milestone := r.Group("/milestone", middleware.AuthMiddleware())
+{
+	milestone.POST("/create", invoicehdlr.CreateMilestoneRuleHandler)
+	milestone.PUT("/update", invoicehdlr.UpdateMilestoneRuleHandler)
+	milestone.GET("/project/:project_id", invoicehdlr.GetMilestonesByProjectIDHandler)
+	milestone.GET("/project/:project_id/phase/:phase", invoicehdlr.GetMilestoneByProjectIDAndPhaseHandler)
+}
 
 	}
 	return r

@@ -30,6 +30,7 @@ func main() {
 	client.InitCrmServiceClients()
 	client.InitTimeServiceClients()
 	client.InitMessageServiceClient()
+	client.InitInvoiceServiceClients()
 
 	clientHandler := &projecthdlr.ClientHandler{ClientClient: client.ClientClient}
 	projectHandler := &projecthdlr.ProjectHandler{ProjectClient: client.ProjectClient}	
