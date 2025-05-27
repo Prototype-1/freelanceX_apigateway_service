@@ -17,10 +17,10 @@ func NewPaymentHandler(client paymentPb.PaymentServiceClient) *Handler {
 	return &Handler{PaymentGRPCClient: client}
 }
 
-func (h *Handler) SimulatePaymentHandler(c *gin.Context) {
+func (h *Handler) CreatePaymentOrderHandler(c *gin.Context) {
 	var req struct {
 		InvoiceID   string  `json:"invoice_id" binding:"required"`
-		MilestoneID string  `json:"milestone_id"` 
+		MilestoneID string  `json:"milestone_id"` // Optional
 		PayerID     string  `json:"payer_id" binding:"required"`
 		ReceiverID  string  `json:"receiver_id" binding:"required"`
 		Amount      float64 `json:"amount" binding:"required"`
@@ -37,7 +37,7 @@ func (h *Handler) SimulatePaymentHandler(c *gin.Context) {
 		return
 	}
 
-	grpcReq := &paymentPb.SimulatePaymentRequest{
+	grpcReq := &paymentPb.CreatePaymentOrderRequest{
 		InvoiceId:   req.InvoiceID,
 		MilestoneId: req.MilestoneID,
 		PayerId:     req.PayerID,
@@ -50,19 +50,20 @@ func (h *Handler) SimulatePaymentHandler(c *gin.Context) {
 	})
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
 
-	res, err := h.PaymentGRPCClient.SimulatePayment(ctx, grpcReq)
+	res, err := h.PaymentGRPCClient.CreatePaymentOrder(ctx, grpcReq)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"payment_id":      res.PaymentId,
-		"amount_paid":     res.AmountPaid,
-		"platform_fee":    res.PlatformFee,
-		"amount_credited": res.AmountCredited,
-		"status":          res.Status,
-		 "razorpay_order_id": res.RazorpayOrderId, 
-    "razorpay_key_id":  os.Getenv("RAZORPAY_KEY_ID"),
+		"payment_id":        res.PaymentId,
+		"razorpay_order_id": res.RazorpayOrderId,
+		"amount":            res.Amount,
+		"currency":          res.Currency,
+		"invoice_id":        res.InvoiceId,
+		"razorpay_key_id":   os.Getenv("RAZORPAY_KEY_ID"),
 	})
 }
+
+
