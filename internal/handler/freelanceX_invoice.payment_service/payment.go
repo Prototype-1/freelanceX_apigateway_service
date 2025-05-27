@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"os"
 	"net/http"
 	"context"
 	"github.com/gin-gonic/gin"
@@ -61,5 +62,7 @@ func (h *Handler) SimulatePaymentHandler(c *gin.Context) {
 		"platform_fee":    res.PlatformFee,
 		"amount_credited": res.AmountCredited,
 		"status":          res.Status,
+		 "razorpay_order_id": res.RazorpayOrderId, 
+    "razorpay_key_id":  os.Getenv("RAZORPAY_KEY_ID"),
 	})
 }
