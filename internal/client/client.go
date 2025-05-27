@@ -16,6 +16,7 @@ import (
 	messagePb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_message.notification_service"
 	invoicePb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_invoice.payment_service/invoice"
 	milestonePb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_invoice.payment_service/milestone"
+	paymentPb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_invoice.payment_service/payment"
 )
 
 var (
@@ -35,6 +36,7 @@ var (
 
 	InvoiceClient invoicePb.InvoiceServiceClient
 	MilestoneClient milestonePb.MilestoneRuleServiceClient
+	PaymentClient paymentPb.PaymentServiceClient
 )
 
 	// --- USER SERVICE ---
@@ -129,7 +131,7 @@ func InitMessageServiceClient() {
     log.Println("Connected to Message Service via gRPC at", messageGrpcAddr)
 }
 
-// --- INVOICE SERVICE ---
+// --- INVOICE.PAYMENT SERVICE ---
 func InitInvoiceServiceClients() {
 	invoiceGrpcAddr := os.Getenv("INVOICE_SERVICE_GRPC_ADDR")
 	if invoiceGrpcAddr == "" {
@@ -143,6 +145,7 @@ func InitInvoiceServiceClients() {
 
 	InvoiceClient = invoicePb.NewInvoiceServiceClient(InvConn)
 	MilestoneClient = milestonePb.NewMilestoneRuleServiceClient(InvConn)
+	PaymentClient = paymentPb.NewPaymentServiceClient(InvConn)
 
 	log.Println("Connected to User Service via gRPC at", invoiceGrpcAddr)
 }

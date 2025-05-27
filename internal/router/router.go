@@ -26,6 +26,8 @@ func SetupRouter(
     wsGroup := r.Group("/ws")
     wsGroup.GET("/messages", middleware.AuthMiddleware(), websocket.ServeWS(hub, client.MessageClient))
 
+paymentHandler := invoicehdlr.NewPaymentHandler(client.PaymentClient)
+
 	api := r.Group("/api")
 	{
 		auth := api.Group("/auth")
@@ -116,6 +118,11 @@ milestone := r.Group("/milestone", middleware.AuthMiddleware())
 	milestone.PUT("/update", invoicehdlr.UpdateMilestoneRuleHandler)
 	milestone.GET("/project/:project_id", invoicehdlr.GetMilestonesByProjectIDHandler)
 	milestone.GET("/project/:project_id/phase/:phase", invoicehdlr.GetMilestoneByProjectIDAndPhaseHandler)
+}
+
+payment := r.Group("/payment", middleware.AuthMiddleware())
+{
+	payment.POST("/simulate-payment", paymentHandler.SimulatePaymentHandler)
 }
 
 	}
