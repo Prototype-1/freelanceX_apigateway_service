@@ -122,7 +122,7 @@ milestone := r.Group("/milestone", middleware.AuthMiddleware())
 
 payment := r.Group("/payment", middleware.AuthMiddleware())
 {
-	payment.POST("/simulate-payment", paymentHandler.SimulatePaymentHandler)
+	payment.POST("/order", paymentHandler.CreatePaymentOrderHandler)
 }
 
 	}
