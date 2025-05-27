@@ -120,9 +120,13 @@ milestone := r.Group("/milestone", middleware.AuthMiddleware())
 	milestone.GET("/project/:project_id/phase/:phase", invoicehdlr.GetMilestoneByProjectIDAndPhaseHandler)
 }
 
-payment := r.Group("/payment", middleware.AuthMiddleware())
+payment := r.Group("/payment")
 {
-	payment.POST("/order", paymentHandler.CreatePaymentOrderHandler)
+	payment.POST("/order", paymentHandler.CreatePaymentOrderHandler, middleware.AuthMiddleware())
+	payment.GET("/checkout", paymentHandler.RazorpayCheckoutPageHandler)
+	payment.POST("/verify", paymentHandler.VerifyPaymentHandler)
+
+
 }
 
 	}
