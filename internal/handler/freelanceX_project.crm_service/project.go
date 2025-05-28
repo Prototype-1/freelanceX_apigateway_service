@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	//"log"
 	"context"
 	"net/http"
 	projectpb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_project.crm_service/project"
@@ -19,16 +20,27 @@ func NewProjectHandler(projectClient projectpb.ProjectServiceClient) *ProjectHan
 }
 
 func getRoleFromContext(c *gin.Context) string {
-	role, exists := c.Get("role")
-	if !exists {
-		return "" 
-	}
-	return role.(string)
+    role, exists := c.Get("role")
+    if !exists {
+        return ""
+    }
+    
+    switch v := role.(type) {
+    case string:
+        return v
+    case *string:
+        if v != nil {
+            return *v
+        }
+        return ""
+    default:
+        return ""
+    }
 }
 
 func validateUUID(clientId string) bool {
-	_, err := uuid.Parse(clientId)
-	return err == nil
+    _, err := uuid.Parse(clientId)
+    return err == nil
 }
 
 func (h *ProjectHandler) CreateProjectHandler(c *gin.Context) {
@@ -63,9 +75,18 @@ func (h *ProjectHandler) CreateProjectHandler(c *gin.Context) {
 func (h *ProjectHandler) GetProjectsByUserHandler(c *gin.Context) {
 	userId := c.Param("userId")
 
-	role := getRoleFromContext(c)
-	ctx := metadata.NewOutgoingContext(context.Background(), metadata.Pairs("role", role))
+	if !validateUUID(userId) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId format"})
+		return
+	}
 
+	role := getRoleFromContext(c)
+	if role != "client" && role != "admin" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized: only clients or admins can access this endpoint"})
+		return
+	}
+
+	ctx := metadata.NewOutgoingContext(context.Background(), metadata.Pairs("role", role))
 	res, err := h.ProjectClient.GetProjectsByUser(ctx, &projectpb.GetProjectsByUserRequest{UserId: userId})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -91,18 +112,55 @@ func (h *ProjectHandler) GetProjectByIdHandler(c *gin.Context) {
 }
 
 func (h *ProjectHandler) DiscoverProjectsHandler(c *gin.Context) {
-	userId := c.Param("userId")
-
-	role := getRoleFromContext(c)
-	ctx := metadata.NewOutgoingContext(context.Background(), metadata.Pairs("role", role))
-
-	res, err := h.ProjectClient.DiscoverProjects(ctx, &projectpb.DiscoverProjectsRequest{UserId: userId})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, res.Projects)
+    fmt.Println("DEBUG: All context keys:")
+    for key, value := range c.Keys {
+        fmt.Printf("  %s: %v (type: %T)\n", key, value, value)
+    }
+    
+    fmt.Println("DEBUG: Request headers:")
+    for key, values := range c.Request.Header {
+        fmt.Printf("  %s: %v\n", key, values)
+    }
+    
+    req := projectpb.DiscoverProjectsRequest{
+        UserId: c.Param("userId"),
+    }
+    
+    fmt.Printf("DEBUG: UserId from param: '%s'\n", req.UserId)
+    
+    role := getRoleFromContext(c)
+    fmt.Printf("DEBUG: Role extracted: '%s'\n", role)
+    
+    if role == "" {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized: role not found in context"})
+        return
+    }
+    
+    if role != "freelancer" {
+        c.JSON(http.StatusUnauthorized, gin.H{
+            "error": fmt.Sprintf("unauthorized: expected 'freelancer', got '%s'", role),
+        })
+        return
+    }
+    
+    if !validateUUID(req.UserId) {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId format"})
+        return
+    }
+    
+    fmt.Printf("DEBUG: Creating context with role: '%s'\n", role)
+    ctx := metadata.NewOutgoingContext(context.Background(), metadata.Pairs("role", role))
+    
+    fmt.Println("DEBUG: Calling backend service...")
+    res, err := h.ProjectClient.DiscoverProjects(ctx, &req)
+    if err != nil {
+        fmt.Printf("DEBUG: Backend service error: %v\n", err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+    
+    fmt.Println("DEBUG: Backend service call successful")
+    c.JSON(http.StatusOK, res) 
 }
 
 func (h *ProjectHandler) AssignFreelancerHandler(c *gin.Context) {
