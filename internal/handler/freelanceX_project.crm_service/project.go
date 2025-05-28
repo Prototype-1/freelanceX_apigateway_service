@@ -132,7 +132,10 @@ func (h *ProjectHandler) DiscoverProjectsHandler(c *gin.Context) {
     fmt.Printf("DEBUG: Role extracted: '%s'\n", role)
     
     if role == "" {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized: role not found in context"})
+        c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "Only freelancers are allowed to discover projects",
+    "code": "role_forbidden",
+		})
         return
     }
     
