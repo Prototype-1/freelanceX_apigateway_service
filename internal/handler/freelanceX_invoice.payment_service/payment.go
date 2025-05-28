@@ -92,11 +92,10 @@ func (h *Handler) RazorpayCheckoutPageHandler(c *gin.Context) {
 	<script>
 		var options = {
 			"key": "` + razorpayKey + `",
-			"amount": ` + amount + `, // amount in smallest currency unit
+			"amount": ` + amount + `, 
 			"currency": "` + currency + `",
 			"order_id": "` + orderID + `",
 			"handler": function (response){
-				// This is where you can call your backend to verify payment
 				fetch("/api/payment/verify", {
 					method: "POST",
 					headers: {
