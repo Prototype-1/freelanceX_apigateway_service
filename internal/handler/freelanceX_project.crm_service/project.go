@@ -1,13 +1,13 @@
 package handlers
 
 import (
-	//"log"
 	"context"
 	"net/http"
 	projectpb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_project.crm_service/project"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/metadata"
 	"fmt"
+	"log"
 	"github.com/google/uuid"
 )
 
@@ -73,7 +73,7 @@ func (h *ProjectHandler) CreateProjectHandler(c *gin.Context) {
 }
 
 func (h *ProjectHandler) GetProjectsByUserHandler(c *gin.Context) {
-	userId := c.Param("userId")
+	userId := c.Param("id")
 
 	if !validateUUID(userId) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId format"})
@@ -99,7 +99,16 @@ func (h *ProjectHandler) GetProjectsByUserHandler(c *gin.Context) {
 func (h *ProjectHandler) GetProjectByIdHandler(c *gin.Context) {
 	projectId := c.Param("id")
 
+		if !validateUUID(projectId) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid projectId format"})
+		return
+	}
+
 	role := getRoleFromContext(c)
+	if role != "client" && role != "admin" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized: only clients or admins can access this endpoint"})
+		return
+	}
 	ctx := metadata.NewOutgoingContext(context.Background(), metadata.Pairs("role", role))
 
 	res, err := h.ProjectClient.GetProjectById(ctx, &projectpb.GetProjectByIdRequest{ProjectId: projectId})
@@ -177,6 +186,11 @@ func (h *ProjectHandler) AssignFreelancerHandler(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized: only clients can assign freelancers"})
 		return
 	}
+
+	if !validateUUID(req.ProjectId) || !validateUUID(req.FreelancerId) {
+	c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UUID format for projectId or freelancerId"})
+	return
+}
 
 	ctx := metadata.NewOutgoingContext(context.Background(), metadata.Pairs("role", role))
 	res, err := h.ProjectClient.AssignFreelancer(ctx, &req)
