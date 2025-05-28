@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/metadata"
 	"fmt"
-	"log"
 	"github.com/google/uuid"
 )
 
