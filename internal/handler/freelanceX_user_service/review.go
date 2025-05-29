@@ -23,7 +23,7 @@ func SubmitReview(c *gin.Context) {
 		return
 	}
 
-	clientID, exists := c.Get("userID")
+	clientID, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
