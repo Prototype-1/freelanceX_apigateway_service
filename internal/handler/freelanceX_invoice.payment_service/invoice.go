@@ -7,8 +7,8 @@ import (
 	invoicepb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_invoice.payment_service/invoice"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc"
 	"context"
+	"github.com/Prototype-1/freelanceX_apigateway_service/internal/client"
 )
 
 func withMetadata(c *gin.Context) context.Context {
@@ -16,12 +16,6 @@ func withMetadata(c *gin.Context) context.Context {
 	role := c.GetString("role")
 	md := metadata.Pairs("user_id", userID, "role", role)
 	return metadata.NewOutgoingContext(c.Request.Context(), md)
-}
-
-var InvoiceClient invoicepb.InvoiceServiceClient
-
-func InitInvoiceClient(conn *grpc.ClientConn) {
-	InvoiceClient = invoicepb.NewInvoiceServiceClient(conn)
 }
 
 func CreateInvoiceHandler(c *gin.Context) {
@@ -76,7 +70,7 @@ func CreateInvoiceHandler(c *gin.Context) {
 		DateTo:         timestamppb.New(dateTo),
 	}
 
-	resp, err := InvoiceClient.CreateInvoice(withMetadata(c), grpcReq)
+	resp, err := client.InvoiceClient.CreateInvoice(withMetadata(c), grpcReq)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -92,7 +86,7 @@ func GetInvoiceHandler(c *gin.Context) {
 		InvoiceId: invoiceID,
 	}
 
-	resp, err := InvoiceClient.GetInvoice(withMetadata(c), grpcReq)
+	resp, err := client.InvoiceClient.GetInvoice(withMetadata(c), grpcReq)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -110,7 +104,7 @@ func GetInvoicesByUserHandler(c *gin.Context) {
 		Role:   role,
 	}
 
-	resp, err := InvoiceClient.GetInvoicesByUser(withMetadata(c), grpcReq)
+	resp, err := client.InvoiceClient.GetInvoicesByUser(withMetadata(c), grpcReq)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -126,7 +120,7 @@ func GetInvoicesByProjectHandler(c *gin.Context) {
 		ProjectId: projectID,
 	}
 
-	resp, err := InvoiceClient.GetInvoicesByProject(withMetadata(c), grpcReq)
+	resp, err :=client. InvoiceClient.GetInvoicesByProject(withMetadata(c), grpcReq)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -154,6 +148,8 @@ func UpdateInvoiceStatusHandler(c *gin.Context) {
 		status = invoicepb.InvoiceStatus_PAID
 	case "CANCELLED":
 		status = invoicepb.InvoiceStatus_CANCELLED
+	case "OVERDUE":
+    status = invoicepb.InvoiceStatus_OVERDUE
 	default:
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid status"})
 		return
@@ -164,7 +160,7 @@ func UpdateInvoiceStatusHandler(c *gin.Context) {
 		Status:    status,
 	}
 
-	resp, err := InvoiceClient.UpdateInvoiceStatus(withMetadata(c), grpcReq)
+	resp, err := client.InvoiceClient.UpdateInvoiceStatus(withMetadata(c), grpcReq)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

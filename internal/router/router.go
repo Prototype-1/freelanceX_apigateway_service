@@ -103,6 +103,14 @@ client := api.Group("/clients", middleware.AuthMiddleware())
 	message := api.Group("/message")
 	message.GET("/get/all", middleware.AuthMiddleware(), messageHandler.GetMessages)
 
+	milestone := r.Group("/milestone", middleware.AuthMiddleware())
+{
+	milestone.POST("/create", invoicehdlr.CreateMilestoneRuleHandler)
+	milestone.PUT("/update", invoicehdlr.UpdateMilestoneRuleHandler)
+	milestone.GET("/project/:project_id", invoicehdlr.GetMilestonesByProjectIDHandler)
+	milestone.GET("/project/:project_id/phase/:phase", invoicehdlr.GetMilestoneByProjectIDAndPhaseHandler)
+}
+
 invoiceGroup := r.Group("/invoices", middleware.AuthMiddleware())
 {
 	invoiceGroup.POST("", invoicehdlr.CreateInvoiceHandler)
@@ -112,17 +120,9 @@ invoiceGroup := r.Group("/invoices", middleware.AuthMiddleware())
 	invoiceGroup.PUT("/:id/status", invoicehdlr.UpdateInvoiceStatusHandler)
 }
 
-milestone := r.Group("/milestone", middleware.AuthMiddleware())
-{
-	milestone.POST("/create", invoicehdlr.CreateMilestoneRuleHandler)
-	milestone.PUT("/update", invoicehdlr.UpdateMilestoneRuleHandler)
-	milestone.GET("/project/:project_id", invoicehdlr.GetMilestonesByProjectIDHandler)
-	milestone.GET("/project/:project_id/phase/:phase", invoicehdlr.GetMilestoneByProjectIDAndPhaseHandler)
-}
-
 payment := r.Group("/payment")
 {
-	payment.POST("/order", paymentHandler.CreatePaymentOrderHandler, middleware.AuthMiddleware())
+	payment.POST("/order", middleware.AuthMiddleware(), paymentHandler.CreatePaymentOrderHandler)
 	payment.GET("/checkout", paymentHandler.RazorpayCheckoutPageHandler)
 	payment.POST("/verify", paymentHandler.VerifyPaymentHandler)
 }

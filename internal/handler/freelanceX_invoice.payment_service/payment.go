@@ -2,8 +2,8 @@ package handler
 
 import (
 	"os"
+	"log"
 	"net/http"
-	"context"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/metadata"
 	paymentPb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_invoice.payment_service/payment"
@@ -20,7 +20,7 @@ func NewPaymentHandler(client paymentPb.PaymentServiceClient) *Handler {
 func (h *Handler) CreatePaymentOrderHandler(c *gin.Context) {
 	var req struct {
 		InvoiceID   string  `json:"invoice_id" binding:"required"`
-		MilestoneID string  `json:"milestone_id"` // Optional
+		MilestoneID string  `json:"milestone_id"` // Opt
 		PayerID     string  `json:"payer_id" binding:"required"`
 		ReceiverID  string  `json:"receiver_id" binding:"required"`
 		Amount      float64 `json:"amount" binding:"required"`
@@ -30,13 +30,15 @@ func (h *Handler) CreatePaymentOrderHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
+	log.Printf("[DEBUG] Retrieved role from context: '%s'", c.GetString("role"))
 	role := c.GetString("role")
+
 	if role != "client" {
 		c.JSON(http.StatusForbidden, gin.H{"error": "only clients can initiate payments"})
 		return
 	}
 
+		log.Printf("Sending gRPC request to CreatePaymentOrder with role: %s", role)
 	grpcReq := &paymentPb.CreatePaymentOrderRequest{
 		InvoiceId:   req.InvoiceID,
 		MilestoneId: req.MilestoneID,
@@ -45,10 +47,8 @@ func (h *Handler) CreatePaymentOrderHandler(c *gin.Context) {
 		Amount:      req.Amount,
 	}
 
-	md := metadata.New(map[string]string{
-		"role": role,
-	})
-	ctx := metadata.NewOutgoingContext(context.Background(), md)
+	md := metadata.Pairs("role", role)
+	ctx := metadata.NewOutgoingContext(c.Request.Context(), md)
 
 	res, err := h.PaymentGRPCClient.CreatePaymentOrder(ctx, grpcReq)
 	if err != nil {
@@ -96,7 +96,7 @@ func (h *Handler) RazorpayCheckoutPageHandler(c *gin.Context) {
 			"currency": "` + currency + `",
 			"order_id": "` + orderID + `",
 			"handler": function (response){
-				fetch("/api/payment/verify", {
+				fetch("/payment/verify", {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json"
