@@ -105,8 +105,8 @@ freelanceX_apigateway_service/
 | Review Service         | Client reviews for freelancers                         | `:50051`  |
 | Proposal Service       | Proposal and Template creation (MongoDB-backed)        | `:50052`  |
 | CRM Service            | Project management: creation, discovery, assignment    | `:50053`  |
-| Notification Service   | (Planned) In-app and email notifications               | TBD       |
-| Time Tracker Service   | (Planned) Logs, time entries, reports                  | TBD       |
+| Notification Service   | (Planned) In-app and email notifications               | `:50054`  |
+| Time Tracker Service   | (Planned) Logs, time entries, reports                  | `:50055` |
 | Invoice & Payment Svc  | Invoice generation, payment tracking                   | `:50056`  |
 
 ---
