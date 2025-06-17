@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apigateway-service
+  labels:
+    app: apigateway-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apigateway-service
+  template:
+    metadata:
+      labels:
+        app: apigateway-service
+    spec:
+      containers:
+        - name: apigateway-container
+          image: aswinputhukaatil/freelancex_apigateway_service:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: apigateway-secret
+                  key: JWT_SECRET
+            - name: PORT
+              valueFrom:
+                secretKeyRef:
+                  name: apigateway-secret
+                  key: PORT
+            - name: REDIS_ADDR
+              valueFrom:
+                secretKeyRef:
+                  name: apigateway-secret
+                  key: REDIS_ADDR
+            - name: USER_SERVICE_GRPC_ADDR
+              valueFrom:
+                secretKeyRef:
+                  name: apigateway-secret
+                  key: USER_SERVICE_GRPC_ADDR
+            - name: PROPOSAL_SERVICE_GRPC_ADDR
+              valueFrom:
+                secretKeyRef:
+                  name: apigateway-secret
+                  key: PROPOSAL_SERVICE_GRPC_ADDR
+            - name: CRM_SERVICE_GRPC_ADDR
+              valueFrom:
+                secretKeyRef:
+                  name: apigateway-secret
+                  key: CRM_SERVICE_GRPC_ADDR
+            - name: TIMELOG_SERVICE_GRPC_ADDR
+              valueFrom:
+                secretKeyRef:
+                  name: apigateway-secret
+                  key: TIMELOG_SERVICE_GRPC_ADDR
+            - name: MESSAGE_SERVICE_GRPC_ADDR
+              valueFrom:
+                secretKeyRef:
+                  name: apigateway-secret
+                  key: MESSAGE_SERVICE_GRPC_ADDR
+            - name: INVOICE_SERVICE_GRPC_ADDR
+              valueFrom:
+                secretKeyRef:
+                  name: apigateway-secret
+                  key: INVOICE_SERVICE_GRPC_ADDR
+            - name: GOOGLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: apigateway-secret
+                  key: GOOGLE_CLIENT_ID
+            - name: GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: apigateway-secret
+                  key: GOOGLE_CLIENT_SECRET
+            - name: GOOGLE_REDIRECT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: apigateway-secret
+                  key: GOOGLE_REDIRECT_URL
+            - name: RAZORPAY_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: apigateway-secret
+                  key: RAZORPAY_KEY_ID
+            - name: RAZORPAY_KEY_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: apigateway-secret
+                  key: RAZORPAY_KEY_SECRET
