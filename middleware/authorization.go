@@ -34,7 +34,10 @@ func AuthMiddleware() gin.HandlerFunc {
                 c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid Authorization header format"})
                 return
             }
-            sessionID = c.GetHeader("session_id")
+           sessionID = c.GetHeader("Session-Id")
+if sessionID == "" {
+    sessionID = c.GetHeader("session_id")
+}
             log.Printf("Session ID from header: %s", sessionID)
         } else if isWebSocket {
     authHeader := c.GetHeader("Authorization")
