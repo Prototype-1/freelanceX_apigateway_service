@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: freelancex-apigateway-service
 spec:
+  type: LoadBalancer  
   selector:
     app: apigateway-service
   ports:
     - protocol: TCP
-      port: 8080
-      targetPort: 8080
-  type: ClusterIP
+      port: 80       
+      targetPort: 8080 
