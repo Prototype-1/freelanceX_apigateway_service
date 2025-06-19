@@ -16,7 +16,7 @@ authPb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_us
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Param request body struct{name string; email string; password string; role string} true "User registration payload"
+// @Param request body dto.RegisterRequest true "User registration payload"
 // @Success 201 {object} map[string]interface{}
 // @Failure 400 {object} map[string]string
 // @Failure 409 {object} map[string]string
@@ -65,7 +65,7 @@ func Register(c *gin.Context) {
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Param request body struct{email string; password string} true "Login credentials"
+// @Param request body dto.LoginRequest true "Login credentials"
 // @Success 200 {object} map[string]string
 // @Failure 400 {object} map[string]string
 // @Failure 401 {object} map[string]string
@@ -105,7 +105,7 @@ func Login(c *gin.Context) {
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Param request body struct{code string; provider string} true "OAuth request"
+// @Param request body dto.OAuthRequest true "OAuth request"
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
@@ -166,7 +166,7 @@ func OAuth(c *gin.Context) {
 // @Tags Auth
 // @Accept json
 // @Produce json
-// @Param request body struct{user_id string; role string} true "Select role request"
+// @Param request body dto.SelectRoleRequest true "Select role request"
 // @Success 200 {object} map[string]string
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
