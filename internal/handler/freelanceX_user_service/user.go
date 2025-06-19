@@ -10,6 +10,18 @@ authPb "github.com/Prototype-1/freelanceX_apigateway_service/proto/freelanceX_us
 "github.com/Prototype-1/freelanceX_apigateway_service/pkg/oauth"
 )
 
+// Register godoc
+// @Summary Register a new user
+// @Description Register a new user with name, email, password, and role
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body struct{name string; email string; password string; role string} true "User registration payload"
+// @Success 201 {object} map[string]interface{}
+// @Failure 400 {object} map[string]string
+// @Failure 409 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /api/auth/register [post]
 func Register(c *gin.Context) {
 	var req struct {
 		Name     string `json:"name" binding:"required"`
@@ -47,6 +59,17 @@ func Register(c *gin.Context) {
 	})
 }
 
+// Login godoc
+// @Summary Login user
+// @Description Authenticate user with email and password
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body struct{email string; password string} true "Login credentials"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Router /api/auth/login [post]
 func Login(c *gin.Context) {
 	var req struct {
 		Email    string `json:"email" binding:"required,email"`
@@ -76,6 +99,17 @@ func Login(c *gin.Context) {
 	})
 }
 
+// OAuth godoc
+// @Summary Login with OAuth (Google etc.)
+// @Description Authenticate user via OAuth provider
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body struct{code string; provider string} true "OAuth request"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /api/auth/oauth [post]
 func OAuth(c *gin.Context) {
 	var req struct {
 		Code     string `json:"code" binding:"required"`
@@ -126,6 +160,17 @@ func OAuth(c *gin.Context) {
 	})
 }
 
+// SelectRole godoc
+// @Summary Select user role
+// @Description Allow user to select a role after OAuth login
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body struct{user_id string; role string} true "Select role request"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /api/auth/select-role [post]
 func SelectRole(c *gin.Context) {
 	var req struct {
 		UserId string `json:"user_id" binding:"required"`
@@ -154,6 +199,16 @@ func SelectRole(c *gin.Context) {
 	})
 }
 
+// GetMe godoc
+// @Summary Get current user info
+// @Description Fetch user information using access token and session context
+// @Tags Auth
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} map[string]interface{}
+// @Failure 401 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /api/auth/me [get]
 func GetMe(c *gin.Context) {
     userID := c.GetString("user_id")
     sessionID := c.GetString("session_id") 
@@ -187,7 +242,16 @@ func GetMe(c *gin.Context) {
     })
 }
 
-
+// Logout godoc
+// @Summary Logout user
+// @Description Invalidate the current session
+// @Tags Auth
+// @Produce json
+// @Param session_id header string true "Session ID"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /api/auth/logout [post]
 func Logout(c *gin.Context) {
 	sessionID := c.GetHeader("session_id")
 	if sessionID == "" {
