@@ -15,9 +15,11 @@ import (
 
 func startMetricsServer() {
 	go func() {
-		http.Handle("/metrics", promhttp.Handler())
+		mux := http.NewServeMux()
+		mux.Handle("/metrics", promhttp.Handler())
+
 		log.Println("Serving Prometheus metrics on :2112/metrics")
-		if err := http.ListenAndServe(":2112", nil); err != nil {
+		if err := http.ListenAndServe(":2112", mux); err != nil {
 			log.Fatalf("Failed to start metrics server: %v", err)
 		}
 	}()
