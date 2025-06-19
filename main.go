@@ -14,19 +14,18 @@ import (
 )
 
 func startMetricsServer() {
-	go func() {
-		mux := http.NewServeMux()
-		mux.Handle("/metrics", promhttp.Handler())
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", promhttp.Handler())
 
-		log.Println("Serving Prometheus metrics on :2112/metrics")
-		if err := http.ListenAndServe(":2112", mux); err != nil {
-			log.Fatalf("Failed to start metrics server: %v", err)
-		}
-	}()
+	log.Println("Serving Prometheus metrics on :2112/metrics")
+	err := http.ListenAndServe(":2112", mux)
+	if err != nil {
+		log.Fatalf("Metrics server error: %v", err)
+	}
 }
 
 func main() {
-startMetricsServer()
+go startMetricsServer()
 	err := godotenv.Load()
 	if err != nil {
 		log.Println(".env file not found, using environment variables")
