@@ -1,7 +1,16 @@
+// @title FreelanceX API Gateway
+// @version 1.0
+// @description This is the API Gateway for FreelanceX microservices.
+// @host freelancex.goxtrace.shop
+// @BasePath /
+
 package main
 
 import (
 	"log"
+	"github.com/swaggo/gin-swagger"
+	"github.com/swaggo/files" 
+	_ "github.com/Prototype-1/freelanceX_apigateway_service/docs"
 	"github.com/joho/godotenv"
 	"github.com/Prototype-1/freelanceX_apigateway_service/config"
 	"github.com/Prototype-1/freelanceX_apigateway_service/kafka"
@@ -49,6 +58,7 @@ go startMetricsServer()
 	projectHandler := &projecthdlr.ProjectHandler{ProjectClient: client.ProjectClient}	
 
 	r := router.SetupRouter(clientHandler, projectHandler)
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	if err := r.Run(":" + config.Port); err != nil {
 		log.Fatalf("Failed to run server: %v", err)

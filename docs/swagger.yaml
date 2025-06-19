@@ -1,0 +1,9 @@
+basePath: /
+host: freelancex.goxtrace.shop
+info:
+  contact: {}
+  description: This is the API Gateway for FreelanceX microservices.
+  title: FreelanceX API Gateway
+  version: "1.0"
+paths: {}
+swagger: "2.0"
