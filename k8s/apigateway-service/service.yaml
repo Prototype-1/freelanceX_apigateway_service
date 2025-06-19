@@ -2,11 +2,20 @@ apiVersion: v1
 kind: Service
 metadata:
   name: freelancex-apigateway-service
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "2112"
+    prometheus.io/path: "/metrics"
 spec:
-  type: LoadBalancer  
+  type: LoadBalancer
   selector:
     app: apigateway-service
   ports:
-    - protocol: TCP
-      port: 80       
-      targetPort: 8080 
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+    - name: metrics
+      protocol: TCP
+      port: 2112
+      targetPort: 2112
