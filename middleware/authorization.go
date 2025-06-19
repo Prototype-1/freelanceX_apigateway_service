@@ -51,7 +51,7 @@ if sessionID == "" {
             return
         }
     }
-    sessionID = c.GetHeader("session_id")
+    sessionID = c.GetHeader("Session-Id")
     displayToken := tokenStr
     if len(tokenStr) > 10 {
         displayToken = tokenStr[:10] + "...(truncated)"
