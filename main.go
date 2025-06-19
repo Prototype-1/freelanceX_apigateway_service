@@ -9,10 +9,22 @@ import (
 	"github.com/Prototype-1/freelanceX_apigateway_service/internal/router"
 	redis "github.com/Prototype-1/freelanceX_apigateway_service/pkg/redis"
 	projecthdlr "github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_project.crm_service"
+	"net/http"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-func main() {
+func startMetricsServer() {
+	go func() {
+		http.Handle("/metrics", promhttp.Handler())
+		log.Println("Serving Prometheus metrics on :2112/metrics")
+		if err := http.ListenAndServe(":2112", nil); err != nil {
+			log.Fatalf("Failed to start metrics server: %v", err)
+		}
+	}()
+}
 
+func main() {
+startMetricsServer()
 	err := godotenv.Load()
 	if err != nil {
 		log.Println(".env file not found, using environment variables")

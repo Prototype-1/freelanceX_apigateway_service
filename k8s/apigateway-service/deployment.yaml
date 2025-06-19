@@ -19,6 +19,7 @@ spec:
           image: aswinputhukaatil/freelancex_apigateway_service:latest
           ports:
             - containerPort: 8080
+            - containerPort: 2112
           resources:
             requests:
               cpu: "100m"
