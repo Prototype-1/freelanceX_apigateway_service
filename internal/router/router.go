@@ -1,6 +1,8 @@
 package router
 
 import (
+	"github.com/swaggo/gin-swagger"
+	"github.com/swaggo/files" 
 	"github.com/Prototype-1/freelanceX_apigateway_service/internal/client"
 	projecthdlr "github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_project.crm_service"
 	proposalhdlr "github.com/Prototype-1/freelanceX_apigateway_service/internal/handler/freelanceX_proposal_service"
@@ -18,6 +20,15 @@ func SetupRouter(
 	projectHandler *projecthdlr.ProjectHandler,
 ) *gin.Engine {
 	r := gin.Default()
+
+	r.GET("/healthz", func(c *gin.Context) {
+    c.JSON(200, gin.H{"status": "ok"})
+})
+r.GET("/readyz", func(c *gin.Context) {
+    c.JSON(200, gin.H{"status": "ready"})
+})
+
+r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	 hub := websocket.NewHub()
     go hub.Run()
