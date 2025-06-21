@@ -47,14 +47,14 @@ func (h *ClientHandler) CreateClientHandler(c *gin.Context) {
 		return
 	}
 
-	sessionID := c.GetHeader("session_id")
+	sessionID := c.GetHeader("Session-Id")
 if sessionID == "" {
-	c.JSON(http.StatusUnauthorized, gin.H{"error": "session_id header is required"})
+	c.JSON(http.StatusUnauthorized, gin.H{"error": "Session-Id header is required"})
 	return
 }
 	md := metadata.Pairs(
 		"role", role,
-		"session_id", sessionID,
+		"Session-Id", sessionID,
 		"user_id", claims.UserID,  
 	)
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
@@ -92,15 +92,15 @@ func (h *ClientHandler) GetClientHandler(c *gin.Context) {
 		return
 	}
 
-	sessionID := c.GetHeader("session_id")
+	sessionID := c.GetHeader("Session-Id")
 	if sessionID == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "session_id header is required"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Session-Id header is required"})
 		return
 	}
 
 	md := metadata.Pairs(
 		"role", claims.Role,
-		"session_id", sessionID,
+		"Session-Id", sessionID,
 		"user_id", claims.UserID,
 	)
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
@@ -146,15 +146,15 @@ func (h *ClientHandler) UpdateClientHandler(c *gin.Context) {
 		return
 	}
 
-	sessionID := c.GetHeader("session_id")
+	sessionID := c.GetHeader("Session-Id")
 	if sessionID == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "session_id header is required"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Session-Id header is required"})
 		return
 	}
 
 	md := metadata.Pairs(
 		"role", claims.Role,
-		"session_id", sessionID,
+		"Session-Id", sessionID,
 		"user_id", claims.UserID,
 	)
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
@@ -193,15 +193,15 @@ func (h *ClientHandler) DeleteClientHandler(c *gin.Context) {
 		return
 	}
 
-	sessionID := c.GetHeader("session_id")
+	sessionID := c.GetHeader("Session-Id")
 	if sessionID == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "session_id header is required"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Session-Id header is required"})
 		return
 	}
 
 	md := metadata.Pairs(
 		"role", claims.Role,
-		"session_id", sessionID,
+		"Session-Id", sessionID,
 		"user_id", claims.UserID,
 	)
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
