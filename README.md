@@ -60,10 +60,7 @@ FreelanceX is a microservices-based freelance collaboration platform. The API Ga
 
 | Service                 | Description                                            | gRPC Port |
 |------------------------|--------------------------------------------------------|-----------|
-| Auth Service           | Login, Register, OAuth, Role Selection                 | `:50051`  |
-| Profile Service        | Freelancer profiles: bio, skills, experience           | `:50051`  |
-| Portfolio Service      | Work samples, images, links                            | `:50051`  |
-| Review Service         | Client reviews for freelancers                         | `:50051`  |
+| User Service           | Login, Register, OAuth, Role Selection                 | `:50051`  |
 | Proposal Service       | Proposal and Template creation (MongoDB-backed)        | `:50052`  |
 | CRM Service            | Project management: creation, discovery, assignment    | `:50053`  |
 | Notification Service   | (Planned) In-app and email notifications               | `:50054`  |
