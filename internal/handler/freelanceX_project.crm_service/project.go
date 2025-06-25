@@ -104,8 +104,8 @@ func (h *ProjectHandler) GetProjectByIdHandler(c *gin.Context) {
 	}
 
 	role := getRoleFromContext(c)
-	if role != "client" && role != "admin" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized: only clients or admins can access this endpoint"})
+	if role != "client" && role != "admin" && role != "freelancer" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 	ctx := metadata.NewOutgoingContext(context.Background(), metadata.Pairs("role", role))
