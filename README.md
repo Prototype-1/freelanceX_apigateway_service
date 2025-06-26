@@ -117,6 +117,9 @@ go build -o apigateway
 
 ---
 
+### For full API documentation
+ see api.md in the root or visit https://freelancex.goxtrace.shop/swagger/index.html (partial routers for now)
+
 #### Maintainers
 
 aswin100396@gmail.com
