@@ -1,5 +1,5 @@
 ##  API Groups
-*Please fine the routes.go inside internal dir for more routes and info on middleware integration*
+*Please find the routes.go inside internal dir for more routes and info on middleware integration*
 
 ###  Auth (/api/auth)
 - POST /register – User registration
