@@ -106,7 +106,7 @@ client := api.Group("/clients", middleware.AuthMiddleware())
 	{
 		timeTracker.POST("/logs/create", timeTrackerHdlr.CreateTimeLogHandler)
 		timeTracker.GET("/logs/user/:userId", timeTrackerHdlr.GetTimeLogsByUserHandler)
-		timeTracker.GET("/logs/project/:projectId", timeTrackerHdlr.GetTimeLogsByProjectHandler)
+		timeTracker.GET("/logs/project/:project_id", timeTrackerHdlr.GetTimeLogsByProjectHandler)
 		timeTracker.PUT("/logs/update/:logId", timeTrackerHdlr.UpdateTimeLogHandler)
 		timeTracker.DELETE("/logs/delete/:logId",  timeTrackerHdlr.DeleteTimeLogHandler)
 	}
